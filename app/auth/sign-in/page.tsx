@@ -1,28 +1,35 @@
-import { SignInButton } from "@/components/auth/signin-button"
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
 
-export default async function SignInPage() {
-    const session = await auth()
+import SignInButtons from "@/components/auth/signin-buttons";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+interface SignInPageProps {
+    searchParams: Promise<{ callbackUrl?: string }>
+}
 
-    // if (session) {
-    //     redirect("/dashboard")
-    // }
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+    const {callbackUrl} = await searchParams
+
+    const session = await auth();
+
+    if (session) {
+        return redirect(callbackUrl || "/");
+    }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center">
             <div className="max-w-md w-full space-y-8">
                 <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-6 text-3xl font-extrabold">
                         Sign in to your account
                     </h2>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Use your Google account to continue
+                    <p className="mt-2 text-sm">
+                        Please sign in with one of the providers
                     </p>
+                    <div className="mt-8 flex justify-center items-center">
+                        <SignInButtons />
+                    </div>
                 </div>
-                <div className="mt-8 flex justify-center">
-                    <SignInButton />
-                </div>
+
             </div>
         </div>
     )

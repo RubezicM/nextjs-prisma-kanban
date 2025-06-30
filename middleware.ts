@@ -10,7 +10,7 @@ export default auth((req) => {
 
     // Protect dashboard routes
     if (pathname.startsWith("/dashboard") && !isLoggedIn) {
-        const newUrl = new URL("/auth/signin", req.nextUrl.origin)
+        const newUrl = new URL("/auth/sign-in", req.nextUrl.origin)
         newUrl.searchParams.set("callbackUrl", pathname)
         return Response.redirect(newUrl)
     }
