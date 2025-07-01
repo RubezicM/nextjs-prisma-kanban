@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
@@ -22,6 +17,7 @@ model User {
   password      String?
   createdAt     DateTime  @default(now()) @db.Timestamp(6)
   updatedAt     DateTime  @updatedAt
+  boards        Board[]
   accounts      Account[]
   Session       Session[]
 }
@@ -64,3 +60,47 @@ model VerificationToken {
 
   @@id([identifier, token])
 }
+
+// Board schema
+
+model Board {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String   @default("Untitled Board") @db.VarChar(100)
+  slug      String   @db.VarChar(50)
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lists     List[]
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, slug])
+  @@index([userId])
+}
+
+model List {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String   @default("Untitled List") @db.VarChar(100)
+  boardId   String   @db.Uuid
+  order     Float    @default(0) @db.Real
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+
+  @@index([boardId, order])
+}
+
+model Card {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String   @default("Untitled Card") @db.VarChar(100)
+  content   String?  @db.Text
+  listId    String   @db.Uuid
+  order     Float    @default(0) @db.Real
+  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+
+  @@index([listId, order])
+}
+
+// prisma/seed.ts
