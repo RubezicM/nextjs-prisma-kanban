@@ -81,7 +81,6 @@ async function main() {
 
     const board = await prisma.board.create({
       data: {
-        id: boardData.id,
         title: boardData.title,
         slug: boardData.slug,
         userId: sampleData.userId,
@@ -94,7 +93,6 @@ async function main() {
 
       const list = await prisma.list.create({
         data: {
-          id: listData.id,
           title: listData.title,
           order: listData.order,
           boardId: board.id,

@@ -5,7 +5,6 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import  prisma from "@/db/prisma"
 import type { NextAuthConfig } from "next-auth"
 import { ExtendedToken, ExtendedSession } from "@/types/auth-types"
-import JWT from "next-auth/jwt"
 
 export const authConfig = {
     pages: {
@@ -41,7 +40,7 @@ export const authConfig = {
         })
     ],
     callbacks: {
-        async jwt({ token, user, account, profile, trigger, session }): Promise<JWT> {
+        async jwt({ token, user, account, profile, trigger, session }) {
             // Initial sign in
             if (account && user) {
                 token.provider = account.provider

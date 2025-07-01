@@ -18,7 +18,7 @@ export async function getUserBoards(userId: string): Promise<Board[]> {
 
 }
 
-export async function createDefaultBoard(userId: string):Promise<Board[]> {
+export async function createDefaultBoard(userId: string):Promise<Board> {
     // Create a default board for the user
     const board = await prisma.board.create({
         data: {
@@ -29,7 +29,7 @@ export async function createDefaultBoard(userId: string):Promise<Board[]> {
     });
 
     // Create default lists for the board
-    const lists = await prisma.list.createMany({
+    await prisma.list.createMany({
         data: [
             { title: 'To Do', boardId: board.id, order: 1 },
             { title: 'In Progress', boardId: board.id, order: 2 },

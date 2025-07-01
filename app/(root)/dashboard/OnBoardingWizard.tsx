@@ -1,10 +1,10 @@
 'use client'
 
 import { useCreateDefaultBoard } from '@/hooks/use-boards'
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const OnboardingWizard = ({userId}:{userId:string}) => {
-  const { isPending, isSuccess, mutate } = useCreateDefaultBoard()
+  const { isSuccess, mutate } = useCreateDefaultBoard()
 
   useEffect(() => {
     if (userId) {
