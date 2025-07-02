@@ -79,14 +79,17 @@ model Board {
 
 model List {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title     String   @default("Untitled List") @db.VarChar(100)
+  title     String   @db.VarChar(100)
   boardId   String   @db.Uuid
+  type      String   @default("todo") @db.VarChar(20)
   order     Float    @default(0) @db.Real
+  collapsed Boolean  @default(false)
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   cards     Card[]
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt
 
+  @@unique([boardId, type])
   @@index([boardId, order])
 }
 
@@ -101,6 +104,14 @@ model Card {
   updatedAt DateTime @updatedAt
 
   @@index([listId, order])
+}
+
+enum ListType {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELED
 }
 
 // prisma/seed.ts

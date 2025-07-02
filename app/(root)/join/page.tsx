@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
-import { getUserBoards } from "@/lib/actions/board-actions";
 import { redirect } from "next/navigation";
+import { getUserBoards } from "@/lib/actions/board-actions";
 import OnboardingWizard from "@/app/(root)/join/OnBoardingWizard";
 
-const DashboardPage = async () => {
+const JoinPage = async () => {
     const session = await auth()
 
     if (!session?.user?.id) {
@@ -15,11 +15,9 @@ const DashboardPage = async () => {
     // Conditional rendering
     if (userBoards.length === 0) {
         return <OnboardingWizard userId={session.user.id} />
+    } else {
+        redirect(`/board/${userBoards[0].slug}`);
     }
-
-    return (
-        <div>Welcome back, {session?.user?.name}!</div>
-    );
 };
 
-export default DashboardPage;
+export default JoinPage;

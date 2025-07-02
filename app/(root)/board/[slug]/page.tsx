@@ -6,7 +6,7 @@ interface BoardPageProps {
 
 
 const BoardPage = async ({ params }: BoardPageProps) => {
-    const { slug } = await params // ✅ Await params
+  const { slug } = await params
   return (
       <div>
           <h1>Board: {slug}</h1>
