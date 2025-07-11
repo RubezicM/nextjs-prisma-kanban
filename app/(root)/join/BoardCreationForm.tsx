@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useBoardSlugValidation } from "@/hooks/use-board-slug-validation";
+import type { CreateBoardState } from "@/lib/actions/board-actions"
 import { useRouter } from 'next/navigation'
 const generateSlug = (title: string) => {
     return title
@@ -22,7 +23,7 @@ const BoardCreationForm = () => {
     const [state, formAction, isPending] = useActionState(createBoard, {
         success: false,
         message: "",
-    } as any);
+    } as CreateBoardState | null);
 
 
     useEffect(() => {
@@ -50,7 +51,7 @@ const BoardCreationForm = () => {
 
                 </div>
                 {/* Form */}
-                <form action={formAction as any}
+                <form action={formAction as (formData: FormData) => void}
                       className="px-6 pb-6">
                     <div className="space-y-4 bg-popover rounded-lg p-6 shadow-sm">
                         <div className="space-y-2">
