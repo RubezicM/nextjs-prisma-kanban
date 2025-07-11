@@ -10,7 +10,6 @@ const { auth } = NextAuth(authConfig)
 export default auth((req) => {
     const isLoggedIn = !!req.auth
     const { pathname } = req.nextUrl
-    console.log('Middleware running for path:', req)
 
     // === PROTECTED ROUTES ===
     // Protect workspace routes
@@ -32,9 +31,6 @@ export default auth((req) => {
         return Response.redirect(new URL("/join", req.nextUrl.origin))
     }
 
-    if (pathname === "/" && isLoggedIn) {
-        return Response.redirect(new URL("/join", req.nextUrl.origin))
-    }
 
     // === PUBLIC ROUTES ===
     // Allow public access to home page for unauthenticated users

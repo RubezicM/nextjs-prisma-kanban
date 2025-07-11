@@ -4,6 +4,10 @@ import prisma from "@/db/prisma";
 import { createBoardSchema } from "@/lib/validators";
 import type { Board } from "@/types/database"
 import { ZodError } from "zod";
+import { auth } from "@/auth";
+import { APP_LIMITS, WORKSPACE_LISTS } from "@/lib/constants/config";
+import { revalidatePath } from "next/cache";
+
 
 export async function getUserBoards(userId: string): Promise<Board[]> {
 
@@ -29,18 +33,97 @@ export type CreateBoardState = {
     data?: Board;
     success: boolean;
     message?: string;
+    redirectTo?: string;
 } | null;
 
-export async function createBoard(prevState: unknown,formData: FormData): Promise<CreateBoardState> {
+export async function createBoard(prevState: unknown, formData: FormData): Promise<CreateBoardState> {
     try {
-        const user = createBoardSchema.parse({
+
+        const session = await auth()
+
+        if (!session?.user?.id) {
+            return {
+                success: false,
+                errors: {_form: ['Not authenticated']}
+            }
+        }
+
+        const userBoardCount = await prisma.board.count({
+            where: {userId: session.user.id}
+        });
+
+        if (userBoardCount >= APP_LIMITS.MAX_BOARDS_PER_USER) {
+            return {
+                success: false,
+                errors: {_form: ['Maximum 2 boards allowed']}
+            }
+        }
+
+
+        const result = createBoardSchema.parse({
             title: formData.get("title"),
             slug: formData.get("slug"),
         });
 
-        // ovde radimo kreaciju boarda preko prisme
 
-        return {success: true, message: "Signed in successfully"};
+        // 3. Check slug uniqueness
+
+        const existingBoard = await prisma.board.findFirst({
+            where: {
+                userId: session.user.id,
+                slug: result.slug
+            }
+        })
+
+        // board exists, return error
+
+        if (existingBoard) {
+            return {
+                success: false,
+                errors: {slug: ['This URL is already taken']}
+            }
+        }
+
+
+        // atomic transaction to create board and lists
+        const board = await prisma.$transaction(async (tx) => {
+            // 1. Create board
+            const board = await tx.board.create({
+                data: {
+                    title: result.title,
+                    slug: result.slug,
+                    userId: session.user.id,
+                }
+            })
+
+            // 2. Create lists
+            const listsData = WORKSPACE_LISTS.map(template => ({
+                title: template.title,
+                boardId: board.id,
+                type: template.id,
+                order: template.order
+            }))
+
+            await tx.list.createMany({data: listsData})
+
+            // 3. Return board if all ok
+            return board
+        })
+
+
+        // revalidate paths to update cache
+        revalidatePath('/join')
+        revalidatePath(`/board/${result.slug}`)
+
+
+        // ultimate success with redirect
+        return {
+            success: true,
+            data: board,
+            message: "Board created successfully",
+            redirectTo: `/board/${result.slug}`
+        }
+
     } catch (error) {
         if (error instanceof ZodError) {
             const fieldErrors = error.flatten().fieldErrors;
@@ -52,6 +135,7 @@ export async function createBoard(prevState: unknown,formData: FormData): Promis
                 },
             };
         }
+        return {success: false, errors: {_form: ['Something went wrong']}}
     }
 }
 

@@ -6,6 +6,9 @@ interface BoardPageProps {
 
 
 const BoardPage = async ({ params }: BoardPageProps) => {
+// 1. Fetch board + lists + cards
+// 2. Display workspace layout
+// 3. Prepare za drag & drop
   const { slug } = await params
   return (
       <div>
