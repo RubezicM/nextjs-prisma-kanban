@@ -61,7 +61,6 @@ export const authConfig = {
             return session as ExtendedSession;
         },
     },
-    debug: process.env.NODE_ENV === "development",
 } satisfies NextAuthConfig
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

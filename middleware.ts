@@ -4,12 +4,23 @@ import { authConfig } from "@/auth"
 // Create auth middleware with just the config (no prisma)
 const { auth } = NextAuth(authConfig)
 
+
+// make async
+
 export default auth((req) => {
     const isLoggedIn = !!req.auth
     const { pathname } = req.nextUrl
 
-    // Protect dashboard routes
-    if (pathname.startsWith("/dashboard") && !isLoggedIn) {
+    // === PROTECTED ROUTES ===
+    // Protect workspace routes
+    if (pathname.startsWith("/board") && !isLoggedIn) {
+        const newUrl = new URL("/auth/sign-in", req.nextUrl.origin)
+        newUrl.searchParams.set("callbackUrl", pathname)
+        return Response.redirect(newUrl)
+    }
+
+    // Protect join route
+    if (pathname.startsWith("/join") && !isLoggedIn) {
         const newUrl = new URL("/auth/sign-in", req.nextUrl.origin)
         newUrl.searchParams.set("callbackUrl", pathname)
         return Response.redirect(newUrl)
@@ -17,7 +28,20 @@ export default auth((req) => {
 
     // Redirect logged in users away from auth pages
     if (pathname.startsWith("/auth") && isLoggedIn) {
-        return Response.redirect(new URL("/dashboard", req.nextUrl.origin))
+        return Response.redirect(new URL("/join", req.nextUrl.origin))
+    }
+
+
+    // === PUBLIC ROUTES ===
+    // Allow public access to home page for unauthenticated users
+    if (pathname === "/" && !isLoggedIn) {
+        // Let them see landing page
+        return
+    }
+
+    // Allow auth pages for unauthenticated users
+    if (pathname.startsWith("/auth") && !isLoggedIn) {
+        return
     }
 })
 

@@ -9,7 +9,7 @@ const SignInButtons = () => {
     const [isPending, startTransition] = useTransition()
     const searchParams = useSearchParams();
     const [activeButton, setActiveButton] = useState<'google' | 'github' | null>(null)
-    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+    const callbackUrl = searchParams.get("callbackUrl") || "/join"; // ← Change from /dashboard
 
     const handleGoogleSignIn = () => {
         setActiveButton('google')
