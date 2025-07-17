@@ -2,10 +2,10 @@
 
 import prisma from "@/db/prisma";
 import { createBoardSchema } from "@/lib/validators";
-import type { Board } from "@/types/database"
+import type { Board, BoardWithData } from "@/types/database"
 import { ZodError } from "zod";
 import { auth } from "@/auth";
-import { APP_LIMITS, WORKSPACE_LISTS } from "@/lib/constants/config";
+import { APP_LIMITS, WORKSPACE_LISTS, INITIAL_CARDS, LIST_TYPES } from "@/lib/constants/config";
 import { revalidatePath } from "next/cache";
 
 
@@ -106,6 +106,29 @@ export async function createBoard(prevState: unknown, formData: FormData): Promi
 
             await tx.list.createMany({data: listsData})
 
+            const todoList = await tx.list.findFirst({
+                where: {
+                    boardId: board.id,
+                    type: LIST_TYPES.TODO
+                },
+                select: { id: true }
+            })
+
+
+            if (!todoList) {
+                throw new Error('Todo list not found')
+            }
+
+            const cardData = INITIAL_CARDS.map((card, index) => ({
+                title: card.title,
+                content: card.content,
+                listId: todoList.id,
+                order: (index + 1) * 1000
+            }))
+
+
+            // Create initial cards in the second list (Todo)
+            await tx.card.createMany({data: cardData})
             // 3. Return board if all ok
             return board
         })
@@ -137,6 +160,22 @@ export async function createBoard(prevState: unknown, formData: FormData): Promi
         }
         return {success: false, errors: {_form: ['Something went wrong']}}
     }
+}
+
+export async function getBoardBySlug(userId:string, slug:string):Promise<BoardWithData | null> {
+    return await prisma.board.findFirst({
+        where: { userId, slug },
+        include: {
+            lists: {
+                include: {
+                    cards: {
+                        orderBy: { order: 'asc' }
+                    }
+                },
+                orderBy: { order: 'asc' }
+            }
+        }
+    })
 }
 
 export async function createDefaultBoard(userId: string): Promise<Board> {

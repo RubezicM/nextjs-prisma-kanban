@@ -32,7 +32,6 @@ const UserButton = async () => {
               variant="ghost"
               className="relative w-8 h-8 rounded-full flex items-center ml-2 justify-center bg-accent"
             >
-              {/*<UserIcon />*/}
               {firstInitial}
             </Button>
           </div>

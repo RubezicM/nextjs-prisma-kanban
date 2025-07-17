@@ -26,3 +26,30 @@ export interface Card {
     createdAt: Date
     updatedAt: Date
 }
+
+export type BoardWithData = {
+    id: string
+    title: string
+    slug: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    lists: Array<{
+        id: string
+        title: string
+        type: string
+        order: number
+        collapsed: boolean
+        createdAt: Date
+        updatedAt: Date
+        cards: Array<{
+            id: string
+            title: string
+            content: string | null
+            listId: string
+            order: number
+            createdAt: Date
+            updatedAt: Date
+        }>
+    }>
+}
