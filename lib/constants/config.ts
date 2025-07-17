@@ -22,41 +22,56 @@ export const APP_LIMITS = {
     RATE_LIMIT_CARDS_PER_MINUTE: 10
 } as const
 
+export const INITIAL_CARDS = [
+    {
+        title: 'Sample Card #1',
+        content: 'This is a sample card content.',
+    },
+    {
+        title: 'Sample Card #2',
+        content: 'This is another sample card content.',
+    },
+    {
+        title: 'Sample Card #3',
+        content: 'This is yet another sample card content.',
+    }
+] as const
+
 
 export const WORKSPACE_LISTS = [
     {
         id: LIST_TYPES.BACKLOG,
         title: 'Backlog',
         icon: 'circle-dashed',
-        color: 'text-gray-500',
+        color: 'bg-gray-500',
         order: 0
     },
     {
         id: LIST_TYPES.TODO,
         title: 'Todo',
-        icon: 'circle-full',
-        color: 'text-blue-500',
+        icon: 'bg-circle-full',
+        color: 'bg-blue-500',
         order: 1
     },
     {
         id: LIST_TYPES.IN_PROGRESS,
         title: 'In Progress',
         icon: 'clock',
-        color: 'text-yellow-500',
+        color: 'bg-yellow-500',
         order: 2
     },
     {
         id: LIST_TYPES.DONE,
         title: 'Done',
         icon: 'check-circle',
-        color: 'text-green-500',
+        color: 'bg-green-500',
         order: 3
     },
     {
         id: LIST_TYPES.CANCELED,
         title: 'Canceled',
         icon: 'x-circle',
-        color: 'text-red-500',
+        color: 'bg-red-500',
         order: 4
     }
 ] as const

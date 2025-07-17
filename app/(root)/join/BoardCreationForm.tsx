@@ -53,7 +53,7 @@ const BoardCreationForm = () => {
                 {/* Form */}
                 <form action={formAction as (formData: FormData) => void}
                       className="px-6 pb-6">
-                    <div className="space-y-4 bg-popover rounded-lg p-6 shadow-sm">
+                    <div className="space-y-4 bg-popover rounded-lg p-6 shadow-2xl">
                         <div className="space-y-2">
                             <Label
                                 htmlFor="title"
@@ -67,7 +67,7 @@ const BoardCreationForm = () => {
                                 id="title"
                                 placeholder="My Awesome Project"
                                 onChange={(e) => handleTitleChange(e.target.value)}
-                                className={`text-foreground transition-colors duration-200
+                                className={`text-accent transition-colors duration-200
                                         ${state?.errors?.title
                                     ? "border-destructive focus-visible:ring-destructive"
                                     : "border-input focus-visible:ring-ring"
