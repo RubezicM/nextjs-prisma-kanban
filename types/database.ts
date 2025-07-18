@@ -11,8 +11,10 @@ export interface Board {
 export interface List {
     id: string
     title: string
-    boardId: string
     order: number
+    type: string
+    collapsed: boolean
+    cards: Array<{id: string, title: string, content: string | null, listId: string, order: number, createdAt: Date, updatedAt: Date}>
     createdAt: Date
     updatedAt: Date
 }
