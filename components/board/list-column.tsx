@@ -1,7 +1,16 @@
 import type { Card } from "@/types/database";
 import CardItem from "@/components/board/card-item";
+import { List } from "@/types/database";
 
-const ListColumn = ({list}) => {
+type ListColumnProps = {
+    list: List & {
+        icon: string;
+        color: string;
+        cards: Card[];  // Explicit cards array
+    }
+}
+
+const ListColumn = ({list}: ListColumnProps) => {
     return (
         <div className="rounded-xs shadow-sm bg-popover flex flex-col">
             {/* List Header */}

@@ -9,7 +9,6 @@ import { List } from "@/types/database";
 type EnrichedList = List & {
     icon: string;
     color:string
-
 }
 
 const Board = () => {
