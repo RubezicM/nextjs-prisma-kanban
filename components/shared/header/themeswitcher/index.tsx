@@ -27,41 +27,23 @@ const ThemeSwitcher = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        className="focus:outline-none hover:cursor-pointer"
-        asChild
-      >
+      <DropdownMenuTrigger className="hover:cursor-pointer focus:outline-none" asChild>
         <Button asChild variant="ghost">
           <span>
-            {theme === "system" ? (
-              <SunMoon />
-            ) : theme === "dark" ? (
-              <MoonIcon />
-            ) : (
-              <SunIcon />
-            )}
+            {theme === "system" ? <SunMoon /> : theme === "dark" ? <MoonIcon /> : <SunIcon />}
           </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>Appearance</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuCheckboxItem
-          checked={theme === "system"}
-          onClick={() => setTheme("system")}
-        >
+        <DropdownMenuCheckboxItem checked={theme === "system"} onClick={() => setTheme("system")}>
           System
         </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={theme === "light"}
-          onClick={() => setTheme("light")}
-        >
+        <DropdownMenuCheckboxItem checked={theme === "light"} onClick={() => setTheme("light")}>
           Light
         </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={theme === "dark"}
-          onClick={() => setTheme("dark")}
-        >
+        <DropdownMenuCheckboxItem checked={theme === "dark"} onClick={() => setTheme("dark")}>
           Dark
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>

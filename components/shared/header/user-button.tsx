@@ -14,23 +14,21 @@ import UserLoginButton from "@/components/shared/header/user-login-button";
 const UserButton = async () => {
   const session = await auth();
 
-
   if (!session) {
-    return <UserLoginButton/>;
+    return <UserLoginButton />;
   }
-
 
   // memoize firstInitial t
   const firstInitial = session.user?.name?.charAt(0).toUpperCase() || "";
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center">
             <Button
               variant="ghost"
-              className="relative w-8 h-8 rounded-full flex items-center ml-2 justify-center bg-accent"
+              className="bg-accent relative ml-2 flex h-8 w-8 items-center justify-center rounded-full"
             >
               {firstInitial}
             </Button>
@@ -39,22 +37,16 @@ const UserButton = async () => {
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <div className="text-sm font-medium leading-none">
-                {session.user?.name || "User"}
-              </div>
-              <div className="text-sm text-muted-foreground leading-none">
+              <div className="text-sm leading-none font-medium">{session.user?.name || "User"}</div>
+              <div className="text-muted-foreground text-sm leading-none">
                 {session.user?.email}
               </div>
             </div>
           </DropdownMenuLabel>
 
-          <DropdownMenuItem asChild className="p-0 mb-1">
+          <DropdownMenuItem asChild className="mb-1 p-0">
             <form action={signOutAction} className="w-full">
-              <Button
-                type="submit"
-                className="w-full py-4 px-2 h-4 justify-start"
-                variant="ghost"
-              >
+              <Button type="submit" className="h-4 w-full justify-start px-2 py-4" variant="ghost">
                 Sign Out
               </Button>
             </form>

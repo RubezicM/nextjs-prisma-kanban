@@ -3,14 +3,13 @@ import { redirect } from "next/navigation";
 import BoardCreationForm from "@/app/(root)/join/BoardCreationForm";
 
 const JoinPage = async () => {
-    const session = await auth()
+  const session = await auth();
 
-    if (!session?.user?.id) {
-        redirect('/auth/sign-in')
-    }
+  if (!session?.user?.id) {
+    redirect("/auth/sign-in");
+  }
 
-    return <BoardCreationForm />
-
+  return <BoardCreationForm />;
 };
 
 export default JoinPage;
