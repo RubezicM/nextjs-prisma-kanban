@@ -8,30 +8,30 @@
 
 @layer base {
   .wrapper {
-    @apply max-w-7xl lg:mx-auto p-5 md:px-10 w-full;
+    @apply w-full max-w-7xl p-5 md:px-10 lg:mx-auto;
   }
 
   .flex-start {
-    @apply flex justify-start items-center;
+    @apply flex items-center justify-start;
   }
   .flex-center {
-    @apply flex justify-center items-center;
+    @apply flex items-center justify-center;
   }
 
   .flex-between {
-    @apply flex justify-between items-center;
+    @apply flex items-center justify-between;
   }
 
   .h1-bold {
-    @apply font-bold text-3xl lg:text-4xl;
+    @apply text-3xl font-bold lg:text-4xl;
   }
 
   .h2-bold {
-    @apply font-bold text-2xl lg:text-3xl;
+    @apply text-2xl font-bold lg:text-3xl;
   }
 
   .h3-bold {
-    @apply font-bold text-xl lg:text-2xl;
+    @apply text-xl font-bold lg:text-2xl;
   }
 }
 
@@ -81,7 +81,7 @@
   --card-foreground: 2 8 23;
   --popover: 255 255 255;
   --popover-foreground: 2 8 23;
-  --primary: #3366FF;
+  --primary: #3366ff;
   --primary-foreground: 248 250 252;
   --secondary: 241 245 249;
   --secondary-foreground: 2 8 23;
@@ -90,8 +90,8 @@
   --accent: #191970;
   --accent-foreground: 2 8 23;
   --destructive: 239 68 68;
-  --border: #2C2E33;
-  --input: #D2D2D2;
+  --border: #2c2e33;
+  --input: #d2d2d2;
   --ring: 59 130 246;
   --chart-1: 239 68 68;
   --chart-2: 59 130 246;
@@ -111,11 +111,11 @@
 .dark {
   --background: #090909;
   --foreground: 255 255 255;
-  --card: #17191A;
+  --card: #17191a;
   --card-foreground: 255 255 255;
   --popover: #0d0d0f;
   --popover-foreground: 255 255 255;
-  --primary: #3366FF;
+  --primary: #3366ff;
   --primary-foreground: 16 16 18;
   --secondary: 42 42 47;
   --secondary-foreground: 255 255 255;
@@ -125,8 +125,8 @@
   --accent-foreground: 255 255 255;
   --destructive: 239 68 68;
   --destructive-foreground: 255 255 255;
-  --border: #2C2E33;
-  --input: #2C2E33;
+  --border: #2c2e33;
+  --input: #2c2e33;
   --ring: 59 130 246;
   --chart-1: 239 68 68;
   --chart-2: 59 130 246;
