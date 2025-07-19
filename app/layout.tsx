@@ -1,8 +1,10 @@
-import { Inter } from "next/font/google";
-import "./globals.css";
 import { AuthProvider } from "@/providers/auth-provider";
-import ThemeProvider from "@/providers/theme-provider";
 import { TanStackProvider } from "@/providers/tanstack-provider";
+import ThemeProvider from "@/providers/theme-provider";
+
+import { Inter } from "next/font/google";
+
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

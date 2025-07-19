@@ -1,6 +1,7 @@
 import type { Card } from "@/types/database";
-import CardItem from "@/components/board/card-item";
 import { List } from "@/types/database";
+
+import CardItem from "@/components/board/card-item";
 
 type ListColumnProps = {
   list: List & {

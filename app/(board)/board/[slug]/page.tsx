@@ -1,7 +1,10 @@
 import { auth } from "@/auth";
-import { notFound, redirect } from "next/navigation";
-import { getBoardBySlug } from "@/lib/actions/board-actions";
 import { BoardProvider } from "@/contexts/BoardProvider";
+
+import { notFound, redirect } from "next/navigation";
+
+import { getBoardBySlug } from "@/lib/actions/board-actions";
+
 import Board from "@/components/board/board";
 
 interface BoardPageProps {

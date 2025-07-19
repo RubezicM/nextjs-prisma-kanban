@@ -1,10 +1,11 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-import GitHub from "next-auth/providers/github";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/db/prisma";
-import type { NextAuthConfig } from "next-auth";
 import { ExtendedToken, ExtendedSession } from "@/types/auth-types";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+
+import NextAuth from "next-auth";
+import type { NextAuthConfig } from "next-auth";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 
 export const authConfig = {
   pages: {

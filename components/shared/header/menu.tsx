@@ -1,5 +1,4 @@
 import ThemeSwitcher from "@/components/shared/header/themeswitcher";
-
 import UserButton from "@/components/shared/header/user-button";
 
 const Menu = () => {

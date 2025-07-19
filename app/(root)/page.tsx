@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 
-import { getUserBoards } from "@/lib/actions/board-actions";
 import { redirect } from "next/navigation";
+
+import { getUserBoards } from "@/lib/actions/board-actions";
 
 export default async function Home() {
   const session = await auth();

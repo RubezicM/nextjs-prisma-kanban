@@ -1,3 +1,6 @@
+import { FaRegUser } from "react-icons/fa";
+
+import SignInButtons from "@/components/auth/signin-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,8 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FaRegUser } from "react-icons/fa";
-import SignInButtons from "@/components/auth/signin-buttons";
 
 const UserLoginButton = () => {
   return (

@@ -1,13 +1,18 @@
 "use client";
 
-import { useActionState, useState, useCallback, useEffect } from "react";
-import { createBoard } from "@/lib/actions/board-actions";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { useBoardSlugValidation } from "@/hooks/use-board-slug-validation";
-import type { CreateBoardState } from "@/lib/actions/board-actions";
+
+import { useActionState, useState, useCallback, useEffect } from "react";
+
 import { useRouter } from "next/navigation";
+
+import { createBoard } from "@/lib/actions/board-actions";
+import type { CreateBoardState } from "@/lib/actions/board-actions";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 const generateSlug = (title: string) => {
   return title
     .toLowerCase()

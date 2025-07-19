@@ -1,5 +1,5 @@
-import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 export interface ExtendedToken extends JWT {
   userId: string;

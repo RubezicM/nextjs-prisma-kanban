@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+
 import { signOutAction } from "@/lib/actions/auth-actions";
 
 export async function UserMenu() {
