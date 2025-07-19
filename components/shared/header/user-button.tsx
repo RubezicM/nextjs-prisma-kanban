@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
+
 import { signOutAction } from "@/lib/actions/auth-actions";
 
+import UserLoginButton from "@/components/shared/header/user-login-button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +11,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import UserLoginButton from "@/components/shared/header/user-login-button";
 
 const UserButton = async () => {
   const session = await auth();

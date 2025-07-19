@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { signInWithGitHub, signInWithGoogle } from "@/lib/actions/auth-actions";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+
 import { useSearchParams } from "next/navigation";
+
+import { signInWithGitHub, signInWithGoogle } from "@/lib/actions/auth-actions";
 
 const SignInButtons = () => {
   const [isPending, startTransition] = useTransition();

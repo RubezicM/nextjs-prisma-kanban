@@ -1,7 +1,8 @@
 // app/api/validate-slug/route.ts
-import { NextRequest } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/db/prisma";
+
+import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const session = await auth();

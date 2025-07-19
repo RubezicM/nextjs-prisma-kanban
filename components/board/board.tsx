@@ -1,9 +1,11 @@
 "use client";
 
 import { useBoardContext } from "@/contexts/BoardProvider";
-import ListColumn from "@/components/board/list-column";
-import { WORKSPACE_LISTS } from "@/lib/constants/config";
 import { List } from "@/types/database";
+
+import { WORKSPACE_LISTS } from "@/lib/constants/config";
+
+import ListColumn from "@/components/board/list-column";
 
 type EnrichedList = List & {
   icon: string;

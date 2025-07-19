@@ -1,5 +1,6 @@
-import NextAuth from "next-auth";
 import { authConfig } from "@/auth";
+
+import NextAuth from "next-auth";
 
 // Create auth middleware with just the config (no prisma)
 const { auth } = NextAuth(authConfig);

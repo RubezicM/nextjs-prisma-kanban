@@ -1,6 +1,9 @@
-import SignInButtons from "@/components/auth/signin-buttons";
 import { auth } from "@/auth";
+
 import { redirect } from "next/navigation";
+
+import SignInButtons from "@/components/auth/signin-buttons";
+
 interface SignInPageProps {
   searchParams: Promise<{ callbackUrl?: string }>;
 }

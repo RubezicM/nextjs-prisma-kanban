@@ -1,12 +1,14 @@
 "use server";
 
+import { auth } from "@/auth";
 import prisma from "@/db/prisma";
-import { createBoardSchema } from "@/lib/validators";
 import type { Board, BoardWithData } from "@/types/database";
 import { ZodError } from "zod";
-import { auth } from "@/auth";
-import { APP_LIMITS, WORKSPACE_LISTS, INITIAL_CARDS, LIST_TYPES } from "@/lib/constants/config";
+
 import { revalidatePath } from "next/cache";
+
+import { APP_LIMITS, WORKSPACE_LISTS, INITIAL_CARDS, LIST_TYPES } from "@/lib/constants/config";
+import { createBoardSchema } from "@/lib/validators";
 
 export async function getUserBoards(userId: string): Promise<Board[]> {
   return await prisma.board.findMany({

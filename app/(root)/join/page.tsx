@@ -1,6 +1,7 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import BoardCreationForm from "@/app/(root)/join/BoardCreationForm";
+import { auth } from "@/auth";
+
+import { redirect } from "next/navigation";
 
 const JoinPage = async () => {
   const session = await auth();

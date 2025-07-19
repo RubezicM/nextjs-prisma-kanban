@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { BoardWithData } from "@/types/database";
+import { useQuery } from "@tanstack/react-query";
+
+import { createContext, useContext, ReactNode } from "react";
+
 import { getBoardBySlug } from "@/lib/actions/board-actions";
 
 type BoardContextType = {

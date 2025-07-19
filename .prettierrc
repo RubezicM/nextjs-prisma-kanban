@@ -8,7 +8,9 @@
   "arrowParens": "avoid",
   "endOfLine": "lf",
   "bracketSameLine": false,
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": ["prettier-plugin-tailwindcss", "@trivago/prettier-plugin-sort-imports"],
   "tailwindConfig": "./tailwind.config.ts",
-  "tailwindFunctions": ["clsx", "cn", "cva"]
+  "tailwindFunctions": ["clsx", "cn", "cva"],
+  "importOrder": ["^react", "^next", "^@/lib", "^@/components", "^[./]"],
+  "importOrderSeparation": true
 }

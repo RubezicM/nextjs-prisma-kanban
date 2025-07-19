@@ -1,6 +1,7 @@
 // hooks/use-board-slug-validation.ts
-import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
+
+import { useEffect, useState } from "react";
 
 export function useBoardSlugValidation(slug: string) {
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
