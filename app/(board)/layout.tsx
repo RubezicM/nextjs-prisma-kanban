@@ -6,14 +6,12 @@ export default function BoardLayout({ children }: { children: React.ReactNode })
       <div className="bg-background border-b">
         <div className="flex items-center justify-between px-6 py-2">
           {/*Here it would come board switcher/options */}
-          <div>kurac</div>
+          <div>Switch Board/Options</div>
 
-          {/* Here user menu/ theme switcher */}
           <Menu />
         </div>
       </div>
 
-      {/* Board content - full width, no container */}
       <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   );
