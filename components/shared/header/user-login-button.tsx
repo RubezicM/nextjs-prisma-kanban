@@ -1,12 +1,11 @@
 import { FaRegUser } from "react-icons/fa";
 
-import SignInButtons from "@/components/auth/signin-buttons";
+import LoginAuthPanel from "@/components/auth/panels/login-auth-panel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -16,20 +15,16 @@ const UserLoginButton = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
-          <>
-            <FaRegUser /> Sign in
-          </>
+        <Button className="bg-primary hover:bg-accent/80 text-primary-foreground">
+          <FaRegUser /> <span className="text-primary-foreground">Sign in</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Sign in</DialogTitle>
-          <DialogDescription>Please sign in using one of the following providers</DialogDescription>
+        <DialogHeader className="text-center">
+          <DialogTitle>Welcome back</DialogTitle>
+          <DialogDescription>Login with one of the providers</DialogDescription>
+          <LoginAuthPanel />
         </DialogHeader>
-        <DialogFooter>
-          <SignInButtons />
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

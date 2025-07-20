@@ -122,7 +122,7 @@ export async function createBoard(
         order: (index + 1) * 1000,
       }));
 
-      // Create initial cards in the second list (Todo)
+      // Create initial cards in the second list (TODOList)
       await tx.card.createMany({ data: cardData });
       // 3. Return board if all ok
       return board;
@@ -170,6 +170,7 @@ export async function getBoardBySlug(userId: string, slug: string): Promise<Boar
   });
 }
 
+// Deprecation warning: This function is deprecated
 export async function createDefaultBoard(userId: string): Promise<Board> {
   // Create a default board for the user
   const board = await prisma.board.create({
