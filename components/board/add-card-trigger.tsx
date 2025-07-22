@@ -1,6 +1,8 @@
 import { useBoardContext } from "@/contexts/BoardProvider";
 import { ChevronRight } from "lucide-react";
 
+import { useState } from "react";
+
 import AddCardForm from "@/components/board/add-card-form";
 import {
   Dialog,
@@ -13,14 +15,19 @@ import {
 const AddCardTrigger = ({
   children,
   onClick,
+  listId,
 }: {
   children: React.ReactNode;
-  listId?: string;
+  listId: string;
   onClick?: () => void;
 }) => {
   const { boardData } = useBoardContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const handleClose = () => {
+    setIsDialogOpen(false);
+  };
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild onClick={onClick}>
         {children}
       </DialogTrigger>
@@ -37,7 +44,7 @@ const AddCardTrigger = ({
             </div>
           </DialogTitle>
         </DialogHeader>
-        <AddCardForm />
+        <AddCardForm listId={listId} onSuccess={handleClose} boardSlug={boardData?.slug} />
       </DialogContent>
     </Dialog>
   );

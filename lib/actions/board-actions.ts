@@ -172,7 +172,6 @@ export async function getBoardBySlug(userId: string, slug: string): Promise<Boar
 
 // Deprecation warning: This function is deprecated
 export async function createDefaultBoard(userId: string): Promise<Board> {
-  // Create a default board for the user
   const board = await prisma.board.create({
     data: {
       title: "Untitled Board",

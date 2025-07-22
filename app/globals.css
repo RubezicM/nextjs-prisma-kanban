@@ -144,6 +144,143 @@
 }
 
 @layer utilities {
+
+  .prose-card {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .prose-card strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .prose-card em {
+    @apply italic;
+  }
+
+  .prose-card p {
+    @apply mb-2 last:mb-0;
+  }
+
+  .prose-card ul {
+    @apply list-disc pl-4 mb-2;
+  }
+
+  .prose-card ol {
+    @apply list-decimal pl-4 mb-2;
+  }
+
+  .prose-card code {
+    @apply bg-muted px-1 rounded text-xs;
+  }
+
+  .tiptap {
+
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding:1rem;
+    background-color: color-mix(in srgb, var(--input) 30%, transparent);
+
+
+    :first-child {
+      margin-top: 0;
+    }
+
+    ul {
+      list-style: disc;
+    }
+
+    ol {
+      list-style: decimal;
+    }
+    ul,
+    ol {
+      padding: 0 1rem;
+      margin: 1.25rem 1rem 1.25rem 0.4rem;
+      li p {
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+      }
+    }
+
+    /* Heading styles */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      line-height: 1.1;
+      margin-top: 2.5rem;
+      text-wrap: pretty;
+    }
+
+    h1,
+    h2 {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+    }
+
+    h4,
+    h5,
+    h6 {
+      font-size: 1rem;
+    }
+
+    /* Code and preformatted text styles */
+    code {
+      background-color: var(--card);
+      padding: .4em 1em;
+      border-radius: 0.4rem;
+      color: var(--card-foreground);
+      font-size: 0.85rem;
+    }
+
+    pre {
+      background: var(--card);
+      border-radius: 0.5rem;
+      color: var(--card-foreground);
+      font-family: 'JetBrainsMono', monospace;
+      margin: 1.5rem 0;
+      padding: 0.75rem 1rem;
+
+      code {
+        background: none;
+        color: inherit;
+        font-size: 0.8rem;
+        padding: 0;
+      }
+    }
+
+    blockquote {
+      border-left: 3px solid var(--border);
+      margin: 1.5rem 0;
+      padding-left: 1rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    textarea {
+      max-height: 400px;
+    }
+  }
+
   .slide-in-from-right {
     animation: slideInFromRight 1s ease-out forwards;
   }
