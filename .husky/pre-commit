@@ -1,4 +1,4 @@
 npx lint-staged
-pnpm run format
+pnpm run format:check
 pnpm run test:run
 pnpm run type-check
