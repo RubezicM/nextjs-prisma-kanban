@@ -1,121 +1,72 @@
 // prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
+import { hashSync } from "bcrypt-ts-edge";
 
 const prisma = new PrismaClient();
 
-const sampleData = {
-  userId: "23563ffd-7834-49c0-8bfd-8b75c6e75d15", // Your user ID
-  boards: [
-    {
-      title: "My First Board",
-      slug: "my-first-board",
-      lists: [
-        {
-          title: "To Do",
-          order: 1.0,
-          cards: [
-            { title: "Welcome to your board!", order: 1.0 },
-            { title: "Create your first task", order: 2.0 },
-            { title: "Drag cards between lists", order: 3.0 },
-          ],
-        },
-        {
-          title: "In Progress",
-          order: 2.0,
-          cards: [
-            { title: "Learn Kanban workflow", order: 1.0 },
-            { title: "Set up your workspace", order: 2.0 },
-          ],
-        },
-        {
-          title: "Done",
-          order: 3.0,
-          cards: [{ title: "Sign up and log in", order: 1.0 }],
-        },
-      ],
-    },
-    {
-      title: "Personal Tasks",
-      slug: "personal-tasks",
-      lists: [
-        {
-          title: "Today",
-          order: 1.0,
-          cards: [
-            { title: "Morning workout", order: 1.0 },
-            { title: "Check emails", order: 2.0 },
-          ],
-        },
-        {
-          title: "This Week",
-          order: 2.0,
-          cards: [
-            { title: "Grocery shopping", order: 1.0 },
-            { title: "Plan weekend trip", order: 2.0 },
-          ],
-        },
-        {
-          title: "Completed",
-          order: 3.0,
-          cards: [],
-        },
-      ],
-    },
-  ],
+const testUserData = {
+  email: "test@test.com",
+  password: "test123",
+  name: "Test User",
 };
 
 async function main() {
   console.log("🌱 Starting database seed...");
 
-  // Clean existing data (optional - for testing)
-  console.log("🧹 Cleaning existing data...");
-  await prisma.card.deleteMany();
-  await prisma.list.deleteMany();
-  await prisma.board.deleteMany();
+  // Only run in development or when explicitly forced
+  if (process.env.NODE_ENV === "production" && !process.env.FORCE_SEED) {
+    console.log("⚠️  Skipping seed in production environment");
+    console.log("💡 To force seed in production, set FORCE_SEED=true");
+    return;
+  }
 
-  // Create boards with nested lists and cards
-  for (const boardData of sampleData.boards) {
-    console.log(`📋 Creating board: ${boardData.title}`);
+  console.log("🔧 Creating test user for demo purposes...");
 
-    const board = await prisma.board.create({
+  try {
+    // Check if test user already exists
+    console.log("🔍 Checking if test user already exists...");
+    const existingUser = await prisma.user.findUnique({
+      where: { email: testUserData.email },
+    });
+
+    if (existingUser) {
+      console.log("⚠️  Test user already exists! Skipping user creation...");
+      console.log(`📧 Email: ${testUserData.email}`);
+      console.log(`🆔 User ID: ${existingUser.id}`);
+      return;
+    }
+
+    // Hash the password using the same method as the auth system
+    console.log("🔐 Hashing password for security...");
+    const hashedPassword = hashSync(testUserData.password, 10);
+    console.log("✅ Password hashed successfully!");
+
+    // Create the test user
+    console.log("👤 Creating test user in database...");
+    const testUser = await prisma.user.create({
       data: {
-        title: boardData.title,
-        slug: boardData.slug,
-        userId: sampleData.userId,
+        email: testUserData.email,
+        password: hashedPassword,
+        name: testUserData.name,
       },
     });
 
-    // Create lists for this board
-    for (const listData of boardData.lists) {
-      console.log(`📝 Creating list: ${listData.title}`);
-
-      const list = await prisma.list.create({
-        data: {
-          title: listData.title,
-          order: listData.order,
-          boardId: board.id,
-        },
-      });
-
-      // Create cards for this list
-      for (const cardData of listData.cards) {
-        await prisma.card.create({
-          data: {
-            title: cardData.title,
-            order: cardData.order,
-            listId: list.id,
-          },
-        });
-      }
-
-      console.log(`  ✅ Created ${listData.cards.length} cards`);
-    }
+    console.log("🎉 Test user created successfully!");
+    console.log("📋 Test User Details:");
+    console.log(`  📧 Email: ${testUser.email}`);
+    console.log(`  👤 Name: ${testUser.name}`);
+    console.log(`  🆔 ID: ${testUser.id}`);
+    console.log(`  📅 Created: ${testUser.createdAt}`);
+    console.log("");
+    console.log("🔑 Login Credentials:");
+    console.log(`  📧 Email: ${testUserData.email}`);
+    console.log(`  🔒 Password: ${testUserData.password}`);
+    console.log("");
+    console.log("✨ You can now log in with these credentials!");
+  } catch (error) {
+    console.error("❌ Error creating test user:", error);
+    throw error;
   }
-
-  console.log("🎉 Seeding completed successfully!");
-  console.log(
-    `📊 Created: ${sampleData.boards.length} boards, ${sampleData.boards.reduce((acc, b) => acc + b.lists.length, 0)} lists, ${sampleData.boards.reduce((acc, b) => acc + b.lists.reduce((acc2, l) => acc2 + l.cards.length, 0), 0)} cards`
-  );
 }
 
 main()
