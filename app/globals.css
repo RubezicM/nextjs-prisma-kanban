@@ -152,9 +152,11 @@
     @apply text-foreground font-semibold;
   }
 
+
   .prose-card em {
     @apply italic;
   }
+
 
   .prose-card p {
     @apply mb-2 last:mb-0;
