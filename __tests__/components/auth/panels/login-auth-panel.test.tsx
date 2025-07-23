@@ -54,7 +54,7 @@ describe("LoginAuthPanel", () => {
     // Default mock for search params
     mockUseSearchParams.mockReturnValue({
       get: vi.fn().mockReturnValue(null), // Default to null (no callbackUrl)
-    } as ReturnType<typeof useSearchParams>);
+    } as unknown as ReturnType<typeof useSearchParams>);
   });
 
   it("renders all UI elements correctly", () => {
@@ -85,7 +85,7 @@ describe("LoginAuthPanel", () => {
   it("uses default callbackUrl when none in search params", async () => {
     mockUseSearchParams.mockReturnValue({
       get: vi.fn().mockReturnValue(null),
-    } as ReturnType<typeof useSearchParams>);
+    } as unknown as ReturnType<typeof useSearchParams>);
 
     render(<LoginAuthPanel />);
 
@@ -100,7 +100,7 @@ describe("LoginAuthPanel", () => {
   it("uses custom callbackUrl from search params", async () => {
     mockUseSearchParams.mockReturnValue({
       get: vi.fn().mockReturnValue("/dashboard"),
-    } as ReturnType<typeof useSearchParams>);
+    } as unknown as ReturnType<typeof useSearchParams>);
 
     render(<LoginAuthPanel />);
 
