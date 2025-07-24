@@ -8,20 +8,17 @@ import { useRouter } from "next/navigation";
 
 import { createBoard } from "@/lib/actions/board-actions";
 import type { CreateBoardState } from "@/lib/actions/board-actions";
+import { generateSlug } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const generateSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .substring(0, 40);
-};
+interface BoardCreationFormProps {
+  isNewUser: boolean;
+}
 
-const BoardCreationForm = () => {
+const BoardCreationForm = ({ isNewUser }: BoardCreationFormProps) => {
   const router = useRouter();
 
   const [state, formAction, isPending] = useActionState(createBoard, {
@@ -43,10 +40,17 @@ const BoardCreationForm = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 top-[10%] z-50 backdrop-blur-sm">
-      <div className="fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 p-6 duration-200 sm:max-w-lg">
+    <div className="fixed inset-0 top-[10%] z-50 ">
+      <div className="fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 p-6 duration-200 sm:max-w-lg bg-card rounded-sm">
         <div className="px-6 pt-6 pb-4">
-          <h3 className="text-foreground text-center text-lg font-semibold">Create a new board</h3>
+          <h3 className="text-foreground text-center text-lg font-semibold">
+            {isNewUser ? "Welcome! Create your first board" : "Create a new board"}
+          </h3>
+          {isNewUser && (
+            <p className="text-muted-foreground text-center text-sm mt-2">
+              Let&apos;s get you started with your first Kanban board
+            </p>
+          )}
         </div>
         {/* Form */}
         <form action={formAction as (formData: FormData) => void} className="px-6 pb-6">
@@ -61,7 +65,7 @@ const BoardCreationForm = () => {
                 id="title"
                 placeholder="My Awesome Project"
                 onChange={e => handleTitleChange(e.target.value)}
-                className={`text-accent transition-colors duration-200 ${
+                className={`text-foreground transition-colors duration-200 ${
                   state?.errors?.title
                     ? "border-destructive focus-visible:ring-destructive"
                     : "border-input focus-visible:ring-ring"
@@ -124,15 +128,15 @@ const BoardCreationForm = () => {
               </div>
             )}
 
-            {state?.success && (
-              <div className="rounded-md border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/20">
-                <p className="text-xs text-green-700 dark:text-green-400">{state.message}</p>
-              </div>
-            )}
+            {/*{state?.success && (*/}
+            {/*  <div className="rounded-md border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/20">*/}
+            {/*    <p className="text-xs text-green-700 dark:text-green-400">{state.message}</p>*/}
+            {/*  </div>*/}
+            {/*)}*/}
           </div>
           <Button
             type="submit"
-            disabled={isPending || isAvailable === false}
+            disabled={isPending || isAvailable === false || state?.success}
             className="mx-auto mt-6 block h-10 w-[80%] font-medium"
             size="default"
           >

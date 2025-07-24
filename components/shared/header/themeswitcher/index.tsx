@@ -31,7 +31,7 @@ const ThemeSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="hover:cursor-pointer focus:outline-none" asChild>
-        <Button asChild variant="ghost">
+        <Button asChild variant="outline">
           <span>
             {theme === "system" ? <SunMoon /> : theme === "dark" ? <MoonIcon /> : <SunIcon />}
           </span>

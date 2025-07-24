@@ -16,7 +16,7 @@ export default async function Home() {
   const userBoards = await getUserBoards(session.user.id);
 
   if (userBoards.length === 0) {
-    redirect("/join");
+    redirect("/join?new-user=true");
   } else {
     redirect(`/board/${userBoards[0].slug}`);
   }
