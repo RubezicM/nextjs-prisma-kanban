@@ -52,6 +52,7 @@ const AddCardForm = ({ listId, onSuccess, boardSlug }: AddCardFormProps) => {
             disabled={createCardMutation.isPending}
             autoFocus
             id="title"
+            required
           ></Input>
         </div>
         <div className="border rounded-md bg-background">

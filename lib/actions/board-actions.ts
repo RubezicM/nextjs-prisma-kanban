@@ -140,6 +140,7 @@ export async function createBoard(
       redirectTo: `/board/${result.slug}`,
     };
   } catch (error) {
+    console.log("Error creating board:", error);
     if (error instanceof ZodError) {
       const fieldErrors = error.flatten().fieldErrors;
       return {
