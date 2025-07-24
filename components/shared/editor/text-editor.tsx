@@ -174,9 +174,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isBulletList ? "default" : "ghost"}
           size="sm"
-
           tabIndex={-1}
-
           onClick={() => editor.chain().focus().toggleBulletList().run()}
         >
           <List className="w-4 h-4" />
