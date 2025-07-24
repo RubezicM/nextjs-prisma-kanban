@@ -1,4 +1,5 @@
 import { useUpdateCardPriority } from "@/hooks/use-cards";
+import { useToggleListCollapsed } from "@/hooks/use-lists";
 import type { Card } from "@/types/database";
 import { List } from "@/types/database";
 import { Ellipsis, Plus } from "lucide-react";
@@ -20,13 +21,18 @@ type ListColumnProps = {
 const ListColumn = ({ list }: ListColumnProps) => {
   const [listHovered, setListHovered] = useState(false);
   const updateCardPriorityMutation = useUpdateCardPriority();
+  const toggleListCollapsedMutation = useToggleListCollapsed();
 
   const handlePriorityChange = (cardId: string, priority: Card["priority"]) => {
     updateCardPriorityMutation.mutate({ cardId, priority });
   };
+
+  const handleHideList = () => {
+    toggleListCollapsedMutation.mutate({ listId: list.id, collapsed: true });
+  };
   return (
     <div
-      className="bg-popover flex flex-col rounded-xs shadow-sm"
+      className="bg-popover flex flex-col rounded-xs shadow-sm h-full"
       onMouseEnter={() => {
         setListHovered(true);
       }}
@@ -44,13 +50,15 @@ const ListColumn = ({ list }: ListColumnProps) => {
         <div className="flex items-center gap-1">
           <Tooltip delayDuration={800}>
             <TooltipTrigger asChild>
-              <Ellipsis
-                className="hover:bg-muted w-6 h-6 p-1 rounded-sm transition-all duration-200"
-                strokeWidth={2}
-              />
+              <button onClick={handleHideList}>
+                <Ellipsis
+                  className="hover:bg-muted w-6 h-6 p-1 rounded-sm transition-all duration-200"
+                  strokeWidth={2}
+                />
+              </button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="border rounded-sm">
-              <p className="text-foreground">Minimize</p>
+              <p className="text-foreground">Hide column</p>
             </TooltipContent>
           </Tooltip>
 
@@ -69,7 +77,7 @@ const ListColumn = ({ list }: ListColumnProps) => {
           </Tooltip>
         </div>
       </div>
-      <div className="max-h-[calc(100vh-300px)] space-y-2 overflow-y-auto p-2">
+      <div className="flex-1 space-y-2 overflow-y-auto p-2 min-h-0">
         {list.cards?.map((card: Card) => (
           <CardItem
             key={card.id}
