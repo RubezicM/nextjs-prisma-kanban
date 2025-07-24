@@ -1,7 +1,6 @@
 import type { Card } from "@/types/database";
-import DOMPurify from "dompurify";
 
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 
 import { PriorityPicker } from "@/components/card/priority-picker";
 
@@ -12,6 +11,16 @@ type CardItemProps = {
 };
 
 const CardItem: React.FC<CardItemProps> = memo(({ card, color, onPriorityChange }) => {
+  const [sanitizedContent, setSanitizedContent] = useState<string>("");
+
+  useEffect(() => {
+    if (card.content && typeof window !== "undefined") {
+      import("dompurify").then(DOMPurify => {
+        setSanitizedContent(DOMPurify.default.sanitize(card.content || ""));
+      });
+    }
+  }, [card.content]);
+
   const handlePriorityChange = useCallback(
     (priority: Card["priority"]) => {
       onPriorityChange?.(card.id, priority);
@@ -29,7 +38,7 @@ const CardItem: React.FC<CardItemProps> = memo(({ card, color, onPriorityChange 
       {card.content && (
         <div
           className="text-muted-foreground text-xs mt-1 line-clamp-2 overflow-hidden"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(card.content) }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
       )}
     </div>

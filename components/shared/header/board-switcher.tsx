@@ -3,6 +3,7 @@
 import type { Board } from "@/types/database";
 import { ChevronDown } from "lucide-react";
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { getBoardAvatar } from "@/lib/utils";
@@ -77,7 +78,9 @@ export default function BoardSwitcher({ boards }: BoardSwitcherProps) {
             );
           })}
         </>
-        <DropdownMenuItem onClick={() => router.push("/join")}>+ Create New Board</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/join")} asChild>
+          <Link href="/join">+ Create new board</Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
