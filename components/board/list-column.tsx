@@ -1,3 +1,4 @@
+import { useUpdateCardPriority } from "@/hooks/use-cards";
 import type { Card } from "@/types/database";
 import { List } from "@/types/database";
 import { Ellipsis, Plus } from "lucide-react";
@@ -18,6 +19,11 @@ type ListColumnProps = {
 
 const ListColumn = ({ list }: ListColumnProps) => {
   const [listHovered, setListHovered] = useState(false);
+  const updateCardPriorityMutation = useUpdateCardPriority();
+
+  const handlePriorityChange = (cardId: string, priority: Card["priority"]) => {
+    updateCardPriorityMutation.mutate({ cardId, priority });
+  };
   return (
     <div
       className="bg-popover flex flex-col rounded-xs shadow-sm"
@@ -65,7 +71,12 @@ const ListColumn = ({ list }: ListColumnProps) => {
       </div>
       <div className="max-h-[calc(100vh-300px)] space-y-2 overflow-y-auto p-2">
         {list.cards?.map((card: Card) => (
-          <CardItem key={card.id} card={card} color={list.color} />
+          <CardItem
+            key={card.id}
+            card={card}
+            color={list.color}
+            onPriorityChange={handlePriorityChange}
+          />
         ))}
         <AddCardTrigger listId={list.id}>
           <div

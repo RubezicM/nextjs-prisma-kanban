@@ -7,7 +7,7 @@ import { ZodError } from "zod";
 
 import { revalidatePath } from "next/cache";
 
-import { createCardSchema } from "@/lib/validators";
+import { createCardSchema, updateCardPrioritySchema } from "@/lib/validators";
 
 export type CreateCardState = {
   success: boolean;
@@ -26,7 +26,6 @@ export async function createCard(
   prevState: CreateCardState,
   formData: FormData
 ): Promise<CreateCardState> {
-  console.log(formData);
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -43,10 +42,7 @@ export async function createCard(
       boardSlug: formData.get("boardSlug"),
     });
 
-    console.log("tu smo 4");
-
     const { title, content, listId, boardSlug } = validatedFields;
-    console.log("Creating card with data:", validatedFields);
     const result = await prisma.$transaction(async tx => {
       // Find max order in this list
       const maxOrder = await tx.card.aggregate({
@@ -70,7 +66,6 @@ export async function createCard(
 
     return { success: true, data: result, message: "Card created successfully" };
   } catch (error) {
-    console.log("Error creating card:", error);
     if (error instanceof ZodError) {
       const fieldErrors = error.flatten().fieldErrors;
       return {
@@ -83,7 +78,62 @@ export async function createCard(
         },
       };
     }
-    console.error(error); // Re-throw unexpected errors
+
+    return { success: false, errors: { _form: ["Something went wrong"] } };
+  }
+}
+
+export type UpdateCardPriorityState = {
+  success: boolean;
+  errors?: {
+    cardId?: string[];
+    priority?: string[];
+    _form?: string[];
+  };
+  data?: Card;
+  message?: string;
+};
+
+export async function updateCardPriority(
+  cardId: string,
+  priority: Card["priority"]
+): Promise<UpdateCardPriorityState> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        errors: { _form: ["Not authenticated"] },
+      };
+    }
+
+    const validatedFields = updateCardPrioritySchema.parse({
+      cardId,
+      priority,
+    });
+
+    const updatedCard = await prisma.card.update({
+      where: { id: validatedFields.cardId },
+      data: { priority: validatedFields.priority },
+    });
+
+    return {
+      success: true,
+      data: updatedCard,
+      message: "Card priority updated successfully",
+    };
+  } catch (error) {
+    console.error("Error updating card priority:", error);
+    if (error instanceof ZodError) {
+      const fieldErrors = error.flatten().fieldErrors;
+      return {
+        success: false,
+        errors: {
+          cardId: fieldErrors.cardId,
+          priority: fieldErrors.priority,
+        },
+      };
+    }
 
     return { success: false, errors: { _form: ["Something went wrong"] } };
   }

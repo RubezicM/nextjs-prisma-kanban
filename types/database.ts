@@ -1,4 +1,5 @@
 // types/database.ts
+export type CardPriority = "NONE" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export interface Board {
   id: string;
   title: string;
@@ -20,6 +21,7 @@ export interface List {
     content: string | null;
     listId: string;
     order: number;
+    priority: CardPriority;
     createdAt: Date;
     updatedAt: Date;
   }>;
@@ -33,6 +35,7 @@ export interface Card {
   content: string | null;
   listId: string;
   order: number;
+  priority: CardPriority;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,6 +61,7 @@ export type BoardWithData = {
       content: string | null;
       listId: string;
       order: number;
+      priority: CardPriority;
       createdAt: Date;
       updatedAt: Date;
     }>;
