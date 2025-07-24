@@ -3,6 +3,8 @@
 import { useBoardContext } from "@/contexts/BoardProvider";
 import { List } from "@/types/database";
 
+import { useMemo } from "react";
+
 import { WORKSPACE_LISTS } from "@/lib/constants/config";
 
 import HiddenColumnsArea from "@/components/board/hidden-columns-area";
@@ -16,25 +18,36 @@ type EnrichedList = List & {
 const Board = () => {
   const { boardData, isLoading } = useBoardContext();
 
+  const enrichedLists: EnrichedList[] = useMemo(() => {
+    if (isLoading || !boardData?.lists) return [];
+
+    return WORKSPACE_LISTS.map(configList => {
+      const dbList = boardData.lists.find(list => list.type === configList.id);
+      if (!dbList) return null;
+
+      return {
+        id: dbList.id,
+        title: dbList.title,
+        type: dbList.type,
+        collapsed: dbList.collapsed,
+        cards: dbList.cards || [],
+        icon: configList.icon,
+        color: configList.color,
+      };
+    }).filter(Boolean) as EnrichedList[];
+  }, [isLoading, boardData?.lists]);
+
+  const { visibleLists, hiddenLists } = useMemo(
+    () => ({
+      visibleLists: enrichedLists.filter(list => !list.collapsed),
+      hiddenLists: enrichedLists.filter(list => list.collapsed),
+    }),
+    [enrichedLists]
+  );
+
   if (isLoading || !boardData) {
     return <div>Loading...</div>;
   }
-
-  // Enrich all lists with config data
-  const enrichedLists: EnrichedList[] = WORKSPACE_LISTS.map(configList => {
-    const dbList = boardData.lists.find(list => list.type === configList.id);
-    if (!dbList) return null;
-
-    return {
-      ...dbList,
-      icon: configList.icon,
-      color: configList.color,
-    };
-  }).filter(Boolean) as EnrichedList[];
-
-  // Separate visible and hidden lists
-  const visibleLists = enrichedLists.filter(list => !list.collapsed);
-  const hiddenLists = enrichedLists.filter(list => list.collapsed);
 
   return (
     <div className="flex h-screen flex-col">

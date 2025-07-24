@@ -28,7 +28,7 @@ const AddCardForm = ({ listId, onSuccess, boardSlug }: AddCardFormProps) => {
       formData.set("boardSlug", boardSlug);
     }
     try {
-      await createCardMutation.mutateAsync(formData);
+      createCardMutation.mutate(formData);
       onSuccess?.();
       setContent("");
     } catch (error) {

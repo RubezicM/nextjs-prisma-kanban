@@ -3,7 +3,7 @@
 import { BoardWithData } from "@/types/database";
 import { useQuery } from "@tanstack/react-query";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useMemo } from "react";
 
 import { getBoardBySlug } from "@/lib/actions/board-actions";
 
@@ -29,16 +29,15 @@ export const BoardProvider = ({ children, initialData, userId }: BoardProviderPr
     refetchOnWindowFocus: false,
   });
 
-  return (
-    <BoardContext.Provider
-      value={{
-        boardData: boardQuery.data ?? undefined,
-        isLoading: boardQuery.isLoading,
-      }}
-    >
-      {children}
-    </BoardContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      boardData: boardQuery.data ?? undefined,
+      isLoading: boardQuery.isLoading,
+    }),
+    [boardQuery.data, boardQuery.isLoading]
   );
+
+  return <BoardContext.Provider value={contextValue}>{children}</BoardContext.Provider>;
 };
 
 export const useBoardContext = () => {

@@ -64,6 +64,7 @@ const BoardCreationForm = ({ isNewUser }: BoardCreationFormProps) => {
                 name="title"
                 id="title"
                 placeholder="My Awesome Project"
+                disabled={isPending}
                 onChange={e => handleTitleChange(e.target.value)}
                 className={`text-foreground transition-colors duration-200 ${
                   state?.errors?.title
@@ -89,6 +90,7 @@ const BoardCreationForm = ({ isNewUser }: BoardCreationFormProps) => {
                   name="slug"
                   value={slug}
                   id="slug"
+                  disabled={isPending}
                   onChange={e => setSlug(e.target.value)}
                   className={`text-foreground pl-26 transition-colors duration-200 ${
                     state?.errors?.slug
@@ -136,7 +138,7 @@ const BoardCreationForm = ({ isNewUser }: BoardCreationFormProps) => {
           </div>
           <Button
             type="submit"
-            disabled={isPending || isAvailable === false || state?.success}
+            disabled={isPending || !isAvailable || state?.success || isChecking}
             className="mx-auto mt-6 block h-10 w-[80%] font-medium"
             size="default"
           >

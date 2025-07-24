@@ -44,12 +44,8 @@ export function useToggleListCollapsed() {
     onError: (err, variables, context) => {
       if (context?.previousData && context?.queryKey) {
         queryClient.setQueryData(context.queryKey, context.previousData);
-      }
-    },
-
-    onSettled: () => {
-      if (boardSlug && userId) {
-        queryClient.invalidateQueries({ queryKey: ["board", boardSlug, userId] });
+        // Only invalidate on error to get fresh data
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
       }
     },
   });

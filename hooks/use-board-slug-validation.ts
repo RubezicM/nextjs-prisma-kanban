@@ -25,7 +25,7 @@ export function useBoardSlugValidation(slug: string) {
     } finally {
       setIsChecking(false);
     }
-  }, 500); // 500ms debounce
+  }, 500);
 
   useEffect(() => {
     setIsAvailable(null);

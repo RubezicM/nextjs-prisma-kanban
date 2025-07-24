@@ -4,7 +4,8 @@ import type { Card } from "@/types/database";
 import { List } from "@/types/database";
 import { Ellipsis, Plus } from "lucide-react";
 
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
+import type { FC } from "react";
 
 import AddCardTrigger from "@/components/board/add-card-trigger";
 import CardItem from "@/components/board/card-item";
@@ -18,27 +19,38 @@ type ListColumnProps = {
   };
 };
 
-const ListColumn = ({ list }: ListColumnProps) => {
+const ListColumnComponent: FC<ListColumnProps> = ({ list }) => {
   const [listHovered, setListHovered] = useState(false);
   const updateCardPriorityMutation = useUpdateCardPriority();
   const toggleListCollapsedMutation = useToggleListCollapsed();
 
-  const handlePriorityChange = (cardId: string, priority: Card["priority"]) => {
-    updateCardPriorityMutation.mutate({ cardId, priority });
-  };
+  const handlePriorityChange = useCallback(
+    (cardId: string, priority: Card["priority"]) => {
+      updateCardPriorityMutation.mutate({ cardId, priority });
+    },
+    [updateCardPriorityMutation]
+  );
 
-  const handleHideList = () => {
+  const handleHideList = useCallback(() => {
     toggleListCollapsedMutation.mutate({ listId: list.id, collapsed: true });
-  };
+  }, [toggleListCollapsedMutation, list.id]);
+
+  const handleMouseEnter = useCallback(() => {
+    setListHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setListHovered(false);
+  }, []);
+
+  const handleAddCardClick = useCallback(() => {
+    setListHovered(false);
+  }, []);
   return (
     <div
       className="bg-popover flex flex-col rounded-xs shadow-sm h-full"
-      onMouseEnter={() => {
-        setListHovered(true);
-      }}
-      onMouseLeave={() => {
-        setListHovered(false);
-      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* List Header */}
       <div className="flex items-center justify-between p-2">
@@ -64,7 +76,7 @@ const ListColumn = ({ list }: ListColumnProps) => {
 
           <Tooltip delayDuration={800}>
             <TooltipTrigger asChild>
-              <AddCardTrigger listId={list.id} onClick={() => setListHovered(false)}>
+              <AddCardTrigger listId={list.id} onClick={handleAddCardClick}>
                 <Plus
                   className="hover:bg-muted w-6 h-6 p-1 rounded-sm transition-all duration-200"
                   strokeWidth={2}
@@ -97,5 +109,8 @@ const ListColumn = ({ list }: ListColumnProps) => {
     </div>
   );
 };
+
+const ListColumn = memo(ListColumnComponent);
+ListColumn.displayName = "ListColumn";
 
 export default ListColumn;

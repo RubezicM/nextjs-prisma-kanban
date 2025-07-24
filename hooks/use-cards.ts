@@ -31,6 +31,7 @@ export function useCreateCard(listId: string) {
       await queryClient.cancelQueries({ queryKey });
       const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
 
+      const tempId = `temp-${Date.now()}`;
       // Optimistic update
       queryClient.setQueryData<BoardWithData>(queryKey, old => {
         if (!old) return old;
@@ -43,9 +44,8 @@ export function useCreateCard(listId: string) {
           existingCards.length > 0 ? Math.max(...existingCards.map((card: Card) => card.order)) : 0;
 
         const newOrder = maxOrder + 1000;
-
         const tempCard: Card = {
-          id: `temp-${Date.now()}`,
+          id: tempId,
           title,
           content,
           listId,
@@ -63,18 +63,38 @@ export function useCreateCard(listId: string) {
         };
       });
 
-      return { previousData, queryKey };
+      return { previousData, queryKey, tempId };
     },
 
     onError: (err, variables, context) => {
       if (context?.previousData && context?.queryKey) {
         queryClient.setQueryData(context.queryKey, context.previousData);
+        // Only invalidate on error to get fresh data
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
       }
     },
 
-    onSettled: () => {
-      if (boardSlug && userId) {
-        queryClient.invalidateQueries({ queryKey: ["board", boardSlug, userId] });
+    onSuccess: (data, variables, context) => {
+      // Replace temp card!!
+      if (boardSlug && userId && context?.queryKey && data.success && data.data) {
+        const queryKey = context.queryKey;
+        queryClient.setQueryData<BoardWithData>(queryKey, old => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            lists: old.lists.map((list: List) =>
+              list.id === listId
+                ? {
+                    ...list,
+                    cards: list.cards.map(card =>
+                      card.id === context.tempId ? (data.data as Card) : card
+                    ),
+                  }
+                : list
+            ),
+          };
+        });
       }
     },
   });
@@ -102,18 +122,26 @@ export function useUpdateCardPriority() {
       await queryClient.cancelQueries({ queryKey });
       const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
 
-      // Optimistic update
+      // OU
       queryClient.setQueryData<BoardWithData>(queryKey, old => {
         if (!old) return old;
 
+        const listIndex = old.lists.findIndex(list => list.cards.some(card => card.id === cardId));
+
+        if (listIndex === -1) return old;
+
+        // Create new lists array
+        const newLists = [...old.lists];
+        newLists[listIndex] = {
+          ...old.lists[listIndex],
+          cards: old.lists[listIndex].cards.map((card: Card) =>
+            card.id === cardId ? { ...card, priority } : card
+          ),
+        };
+
         return {
           ...old,
-          lists: old.lists.map((list: List) => ({
-            ...list,
-            cards: list.cards.map((card: Card) =>
-              card.id === cardId ? { ...card, priority } : card
-            ),
-          })),
+          lists: newLists,
         };
       });
 
@@ -123,12 +151,8 @@ export function useUpdateCardPriority() {
     onError: (err, variables, context) => {
       if (context?.previousData && context?.queryKey) {
         queryClient.setQueryData(context.queryKey, context.previousData);
-      }
-    },
-
-    onSettled: () => {
-      if (boardSlug && userId) {
-        queryClient.invalidateQueries({ queryKey: ["board", boardSlug, userId] });
+        // Only invalidate on error to get fresh data
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
       }
     },
   });
