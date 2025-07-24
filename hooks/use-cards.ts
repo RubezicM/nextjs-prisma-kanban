@@ -3,7 +3,7 @@ import { useBoardContext } from "@/contexts/BoardProvider";
 import { BoardWithData, List, Card } from "@/types/database";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { createCard } from "@/lib/actions/card-actions";
+import { createCard, updateCardPriority } from "@/lib/actions/card-actions";
 
 export function useCreateCard(listId: string) {
   const queryClient = useQueryClient();
@@ -50,6 +50,7 @@ export function useCreateCard(listId: string) {
           content,
           listId,
           order: newOrder,
+          priority: "NONE",
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -59,6 +60,60 @@ export function useCreateCard(listId: string) {
           lists: old.lists.map((list: List) =>
             list.id === listId ? { ...list, cards: [...list.cards, tempCard] } : list
           ),
+        };
+      });
+
+      return { previousData, queryKey };
+    },
+
+    onError: (err, variables, context) => {
+      if (context?.previousData && context?.queryKey) {
+        queryClient.setQueryData(context.queryKey, context.previousData);
+      }
+    },
+
+    onSettled: () => {
+      if (boardSlug && userId) {
+        queryClient.invalidateQueries({ queryKey: ["board", boardSlug, userId] });
+      }
+    },
+  });
+}
+
+export function useUpdateCardPriority() {
+  const queryClient = useQueryClient();
+  const { boardData } = useBoardContext();
+
+  const boardSlug = boardData?.slug;
+  const userId = boardData?.userId;
+
+  return useMutation({
+    mutationFn: async ({ cardId, priority }: { cardId: string; priority: Card["priority"] }) => {
+      const result = await updateCardPriority(cardId, priority);
+      if (!result.success) throw new Error(result.errors?._form?.[0] || "Failed");
+      return result;
+    },
+
+    onMutate: async ({ cardId, priority }) => {
+      if (!boardSlug || !userId) return {};
+
+      const queryKey = ["board", boardSlug, userId];
+
+      await queryClient.cancelQueries({ queryKey });
+      const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
+
+      // Optimistic update
+      queryClient.setQueryData<BoardWithData>(queryKey, old => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          lists: old.lists.map((list: List) => ({
+            ...list,
+            cards: list.cards.map((card: Card) =>
+              card.id === cardId ? { ...card, priority } : card
+            ),
+          })),
         };
       });
 

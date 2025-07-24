@@ -94,14 +94,15 @@ model List {
 }
 
 model Card {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title     String   @default("Untitled Card") @db.VarChar(100)
-  content   String?  @db.Text
-  listId    String   @db.Uuid
-  order     Float    @default(0) @db.Real
-  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  updatedAt DateTime @updatedAt
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String       @default("Untitled Card") @db.VarChar(100)
+  content   String?      @db.Text
+  listId    String       @db.Uuid
+  order     Float        @default(0) @db.Real
+  priority  CardPriority @default(NONE)
+  list      List         @relation(fields: [listId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt DateTime     @updatedAt
 
   @@index([listId, order])
 }
@@ -112,6 +113,14 @@ enum ListType {
   IN_PROGRESS
   DONE
   CANCELED
+}
+
+enum CardPriority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 // prisma/seed.ts

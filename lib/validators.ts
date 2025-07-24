@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const cardPrioritySchema = z.enum(["NONE", "LOW", "MEDIUM", "HIGH", "URGENT"]);
+
 export const createBoardSchema = z.object({
   title: z.string().min(3, "Minimum 3 letters").max(30, "Title must be less than 30 characters"),
   slug: z
@@ -16,6 +18,11 @@ export const createCardSchema = z.object({
   content: z.string().optional(),
   listId: z.string().uuid("Invalid list ID"),
   boardSlug: z.string(),
+});
+
+export const updateCardPrioritySchema = z.object({
+  cardId: z.string().uuid("Invalid card ID"),
+  priority: cardPrioritySchema,
 });
 
 export const signInFormSchema = z.object({
