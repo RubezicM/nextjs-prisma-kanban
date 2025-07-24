@@ -93,6 +93,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
             variant="ghost"
             size="sm"
             className="gap-1"
+            tabIndex={-1}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <span className="text-sm">{getCurrentFormat()}</span>
@@ -133,6 +134,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isBold ? "default" : "ghost"}
           size="sm"
+          tabIndex={-1}
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editorState.canBold}
         >
@@ -142,6 +144,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isItalic ? "default" : "ghost"}
           size="sm"
+          tabIndex={-1}
           onClick={() => editor.chain().focus().toggleItalic().run()}
           disabled={!editorState.canItalic}
         >
@@ -151,6 +154,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isStrike ? "default" : "ghost"}
           size="sm"
+          tabIndex={-1}
           onClick={() => editor.chain().focus().toggleStrike().run()}
           disabled={!editorState.canStrike}
         >
@@ -160,6 +164,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isCode ? "default" : "ghost"}
           size="sm"
+          tabIndex={-1}
           onClick={() => editor.chain().focus().toggleCode().run()}
           disabled={!editorState.canCode}
         >
@@ -169,6 +174,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isBulletList ? "default" : "ghost"}
           size="sm"
+          tabIndex={-1}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
         >
           <List className="w-4 h-4" />
@@ -177,6 +183,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           type="button"
           variant={editorState.isOrderedList ? "default" : "ghost"}
           size="sm"
+          tabIndex={-1}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
         >
           <ListOrdered className="w-4 h-4" />
@@ -191,9 +198,8 @@ const TextEditor = ({ onContentChange }: { onContentChange?: (content: string) =
     immediatelyRender: false,
     extensions,
     onUpdate: ({ editor }) => {
-      // ⭐️ Izvlači HTML content svaki put kada se editor menja
       const htmlContent = editor.getHTML();
-      onContentChange?.(htmlContent); // Šalje content parent komponenti
+      onContentChange?.(htmlContent);
     },
   });
 
@@ -204,7 +210,14 @@ const TextEditor = ({ onContentChange }: { onContentChange?: (content: string) =
   return (
     <div>
       <MenuBar editor={editor} />
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        {editor.isEmpty && (
+          <div className="absolute top-0 left-0 text-muted-foreground pointer-events-none p-3">
+            Write your card content here...
+          </div>
+        )}
+      </div>
     </div>
   );
 };
