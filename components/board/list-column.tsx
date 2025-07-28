@@ -4,11 +4,11 @@ import type { Card } from "@/types/database";
 import { List } from "@/types/database";
 import { Ellipsis, Plus } from "lucide-react";
 
-import { useState, memo, useCallback } from "react";
-import type { FC } from "react";
+import { useState, memo, useCallback, JSX } from "react";
 
 import AddCardTrigger from "@/components/board/add-card-trigger";
 import CardItem from "@/components/board/card-item";
+import { Draggable } from "@/components/dnd/draggable";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type ListColumnProps = {
@@ -17,9 +17,13 @@ type ListColumnProps = {
     color: string;
     cards: Card[];
   };
+  isOver?: boolean;
 };
 
-const ListColumnComponent: FC<ListColumnProps> = ({ list }) => {
+const ListColumnComponent: ({ list, isOver }: ListColumnProps) => JSX.Element = ({
+  list,
+  isOver,
+}) => {
   const [listHovered, setListHovered] = useState(false);
   const updateCardPriorityMutation = useUpdateCardPriority();
   const toggleListCollapsedMutation = useToggleListCollapsed();
@@ -48,7 +52,7 @@ const ListColumnComponent: FC<ListColumnProps> = ({ list }) => {
   }, []);
   return (
     <div
-      className="bg-popover flex flex-col rounded-xs shadow-sm h-full"
+      className="bg-popover flex flex-col rounded-xs shadow-sm h-full z-0"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -89,18 +93,19 @@ const ListColumnComponent: FC<ListColumnProps> = ({ list }) => {
           </Tooltip>
         </div>
       </div>
-      <div className="flex-1 space-y-2 overflow-y-auto p-2 min-h-0">
+      {/* List Content */}
+      <div className="flex-1 space-y-2 p-2 min-h-0 relative isolation-isolate">
+        {isOver && (
+          <div className="absolute inset-0 bg-black/70 rounded-sm border pointer-events-none"></div>
+        )}
         {list.cards?.map((card: Card) => (
-          <CardItem
-            key={card.id}
-            card={card}
-            color={list.color}
-            onPriorityChange={handlePriorityChange}
-          />
+          <Draggable key={card.id} id={card.id} data={{ listId: list.id }}>
+            <CardItem card={card} color={list.color} onPriorityChange={handlePriorityChange} />
+          </Draggable>
         ))}
         <AddCardTrigger listId={list.id}>
           <div
-            className={`w-full border p-1 flex items-center justify-center rounded-sm transition-all duration-200 bg-muted/20 hover:bg-muted ${listHovered ? "opacity-100" : "opacity-0"}`}
+            className={`w-full border p-1 flex items-center justify-center rounded-sm transition-all duration-200 bg-muted/20 hover:bg-muted ${listHovered && !isOver ? "opacity-100" : "opacity-0"}`}
           >
             +
           </div>
