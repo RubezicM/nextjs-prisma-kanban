@@ -7,7 +7,11 @@ import { ZodError } from "zod";
 
 import { revalidatePath } from "next/cache";
 
-import { createCardSchema, updateCardPrioritySchema } from "@/lib/validators";
+import {
+  createCardSchema,
+  moveCardToColumnSchema,
+  updateCardPrioritySchema,
+} from "@/lib/validators";
 
 export type CreateCardState = {
   success: boolean;
@@ -131,6 +135,72 @@ export async function updateCardPriority(
         errors: {
           cardId: fieldErrors.cardId,
           priority: fieldErrors.priority,
+        },
+      };
+    }
+
+    return { success: false, errors: { _form: ["Something went wrong"] } };
+  }
+}
+
+export type MoveCardToColumnState = {
+  success: boolean;
+  errors?: {
+    cardId?: string[];
+    listId?: string[];
+    _form?: string[];
+  };
+  data?: Card;
+  message?: string;
+};
+
+export async function moveCardToColumn(
+  cardId: string,
+  listId: string
+): Promise<MoveCardToColumnState> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        errors: { _form: ["Not authenticated"] },
+      };
+    }
+
+    const validatedFields = moveCardToColumnSchema.parse({
+      cardId,
+      listId,
+    });
+    const updatedCard = await prisma.$transaction(async tx => {
+      const maxOrder = await tx.card.aggregate({
+        where: { listId: validatedFields.listId },
+        _max: { order: true },
+      });
+      const newOrder = (maxOrder._max.order || 0) + 1000;
+
+      return await tx.card.update({
+        where: { id: validatedFields.cardId },
+        data: {
+          listId: validatedFields.listId,
+          order: newOrder,
+        },
+      });
+    });
+
+    return {
+      success: true,
+      data: updatedCard,
+      message: "Card moved to column successfully",
+    };
+  } catch (error) {
+    console.error("Error moving card to column:", error);
+    if (error instanceof ZodError) {
+      const fieldErrors = error.flatten().fieldErrors;
+      return {
+        success: false,
+        errors: {
+          cardId: fieldErrors.cardId,
+          listId: fieldErrors.listId,
         },
       };
     }

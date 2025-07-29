@@ -25,6 +25,12 @@ export const updateCardPrioritySchema = z.object({
   priority: cardPrioritySchema,
 });
 
+export const moveCardToColumnSchema = z.object({
+  cardId: z.string().uuid("Invalid card ID"),
+  listId: z.string().uuid("Invalid list ID"),
+  order: z.number().int("Order must be an integer").optional(),
+});
+
 export const signInFormSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),

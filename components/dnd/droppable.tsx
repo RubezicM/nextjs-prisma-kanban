@@ -21,7 +21,7 @@ export function Droppable(props: DroppableProps) {
   const shouldShowOverlay = isOver && !draggedFromThisList;
 
   return (
-    <div ref={setNodeRef} className="h-full">
+    <div ref={setNodeRef}>
       {cloneElement(props.children, { isOver: shouldShowOverlay } as { isOver: boolean })}
     </div>
   );

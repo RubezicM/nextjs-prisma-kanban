@@ -21,7 +21,8 @@
     "test:e2e:ui": "playwright test --ui",
     "prepare": "husky",
     "quality": "pnpm run lint && pnpm run format:check && pnpm run type-check",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "seed:test": "tsx prisma/test-cards-seed.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
