@@ -1,3 +1,5 @@
+"use client";
+
 import { useDraggable } from "@dnd-kit/core";
 
 import React, { ReactNode } from "react";

@@ -3,7 +3,7 @@ import { useBoardContext } from "@/contexts/BoardProvider";
 import { BoardWithData, List, Card } from "@/types/database";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { createCard, updateCardPriority } from "@/lib/actions/card-actions";
+import { createCard, moveCardToColumn, updateCardPriority } from "@/lib/actions/card-actions";
 
 export function useCreateCard(listId: string) {
   const queryClient = useQueryClient();
@@ -151,6 +151,86 @@ export function useUpdateCardPriority() {
     onError: (err, variables, context) => {
       if (context?.previousData && context?.queryKey) {
         queryClient.setQueryData(context.queryKey, context.previousData);
+        console.error("Mutation failed:", err);
+        // Only invalidate on error to get fresh data
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
+    },
+  });
+}
+
+export function useMovingCardToColumn() {
+  const queryClient = useQueryClient();
+  const { boardData } = useBoardContext();
+
+  const boardSlug = boardData?.slug;
+  const userId = boardData?.userId;
+
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      targetListId,
+      sourceListId,
+    }: {
+      cardId: string;
+      targetListId: string;
+      sourceListId: string;
+    }) => {
+      if (!sourceListId) return;
+      const result = await moveCardToColumn(cardId, targetListId);
+      if (!result.success) throw new Error(result.errors?._form?.[0] || "Failed");
+      return result;
+    },
+
+    onMutate: async ({ cardId, targetListId, sourceListId }) => {
+      if (!boardSlug || !userId) return {};
+      const queryKey = ["board", boardSlug, userId];
+
+      await queryClient.cancelQueries({ queryKey });
+      const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
+      queryClient.setQueryData(queryKey, (oldData: BoardWithData | undefined) => {
+        if (!oldData?.lists) return oldData;
+
+        let cardToMove: Card | null = null;
+
+        const updatedLists = oldData.lists.map(list => {
+          if (list.id === sourceListId) {
+            // remove card from old list
+            const cardIndex = list.cards.findIndex(card => card.id === cardId);
+            if (cardIndex !== -1) {
+              cardToMove = list.cards[cardIndex];
+              return {
+                ...list,
+                cards: list.cards.filter(card => card.id !== cardId),
+              };
+            }
+          }
+          return list;
+        });
+
+        // add card to target list
+        const finalLists = updatedLists.map(list => {
+          if (list.id === targetListId && cardToMove) {
+            return {
+              ...list,
+              cards: [...list.cards, cardToMove],
+            };
+          }
+          return list;
+        });
+
+        return {
+          ...oldData,
+          lists: finalLists,
+        };
+      });
+      return { previousData, queryKey };
+    },
+
+    onError: (err, variables, context) => {
+      if (context?.previousData && context?.queryKey) {
+        queryClient.setQueryData(context.queryKey, context.previousData);
+        console.error("Mutation failed:", err);
         // Only invalidate on error to get fresh data
         queryClient.invalidateQueries({ queryKey: context.queryKey });
       }

@@ -73,12 +73,12 @@ const HiddenColumnsArea = ({ hiddenLists }: HiddenColumnsAreaProps) => {
 
       {/* Collapsed state - show icons vertically */}
       {isCollapsed && (
-        <div className="p-2 space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
+        <div className="p-2 space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto flex justify-center flex-col items-center">
           {hiddenLists.map(list => (
             <Tooltip key={list.id} delayDuration={800}>
               <TooltipTrigger asChild>
                 <div
-                  className={`h-3 w-3 rounded-full cursor-pointer ${list.color}`}
+                  className={`h-4 w-4 rounded-full cursor-pointer ${list.color}`}
                   onClick={() => setIsCollapsed(false)}
                 />
               </TooltipTrigger>

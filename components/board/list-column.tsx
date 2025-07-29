@@ -52,7 +52,7 @@ const ListColumnComponent: ({ list, isOver }: ListColumnProps) => JSX.Element = 
   }, []);
   return (
     <div
-      className="bg-popover flex flex-col rounded-xs shadow-sm h-full z-0"
+      className="bg-popover flex flex-col rounded-xs shadow-sm h-[90vh] relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -93,11 +93,12 @@ const ListColumnComponent: ({ list, isOver }: ListColumnProps) => JSX.Element = 
           </Tooltip>
         </div>
       </div>
+      {isOver && (
+        <div className="absolute top-10 left-0 right-0 bottom-0 bg-black/70 rounded-sm border pointer-events-none z-9"></div>
+      )}
+
       {/* List Content */}
-      <div className="flex-1 space-y-2 p-2 min-h-0 relative isolation-isolate">
-        {isOver && (
-          <div className="absolute inset-0 bg-black/70 rounded-sm border pointer-events-none"></div>
-        )}
+      <div className="flex-1 space-y-2 p-2 min-h-0 relative isolation-isolate overflow-y-auto overflow-x-hidden">
         {list.cards?.map((card: Card) => (
           <Draggable key={card.id} id={card.id} data={{ listId: list.id }}>
             <CardItem card={card} color={list.color} onPriorityChange={handlePriorityChange} />

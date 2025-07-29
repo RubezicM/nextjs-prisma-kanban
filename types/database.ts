@@ -27,6 +27,7 @@ export interface List {
   }>;
   createdAt: Date;
   updatedAt: Date;
+  color?: string | undefined;
 }
 
 export interface Card {
