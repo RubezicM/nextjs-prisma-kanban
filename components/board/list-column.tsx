@@ -2,13 +2,14 @@ import { useUpdateCardPriority } from "@/hooks/use-cards";
 import { useToggleListCollapsed } from "@/hooks/use-lists";
 import type { Card } from "@/types/database";
 import { List } from "@/types/database";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Ellipsis, Plus } from "lucide-react";
 
 import { useState, memo, useCallback, JSX } from "react";
 
 import AddCardTrigger from "@/components/board/add-card-trigger";
 import CardItem from "@/components/board/card-item";
-import { Draggable } from "@/components/dnd/draggable";
+import { SortableCardItem } from "@/components/dnd/sortable-card-item";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type ListColumnProps = {
@@ -99,11 +100,16 @@ const ListColumnComponent: ({ list, isOver }: ListColumnProps) => JSX.Element = 
 
       {/* List Content */}
       <div className="flex-1 space-y-2 p-2 min-h-0 relative isolation-isolate overflow-y-auto overflow-x-hidden">
-        {list.cards?.map((card: Card) => (
-          <Draggable key={card.id} id={card.id} data={{ listId: list.id }}>
-            <CardItem card={card} color={list.color} onPriorityChange={handlePriorityChange} />
-          </Draggable>
-        ))}
+        <SortableContext
+          items={list.cards?.map(card => card.id) || []}
+          strategy={verticalListSortingStrategy}
+        >
+          {list.cards?.map((card: Card) => (
+            <SortableCardItem key={card.id} id={card.id} listId={list.id}>
+              <CardItem card={card} color={list.color} onPriorityChange={handlePriorityChange} />
+            </SortableCardItem>
+          ))}
+        </SortableContext>
         <AddCardTrigger listId={list.id}>
           <div
             className={`w-full border p-1 flex items-center justify-center rounded-sm transition-all duration-200 bg-muted/20 hover:bg-muted ${listHovered && !isOver ? "opacity-100" : "opacity-0"}`}

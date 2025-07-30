@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 import {
   createCardSchema,
   moveCardToColumnSchema,
+  sortCardInListSchema,
   updateCardPrioritySchema,
 } from "@/lib/validators";
 
@@ -201,6 +202,73 @@ export async function moveCardToColumn(
         errors: {
           cardId: fieldErrors.cardId,
           listId: fieldErrors.listId,
+        },
+      };
+    }
+
+    return { success: false, errors: { _form: ["Something went wrong"] } };
+  }
+}
+
+export type ReorderCardsInListState = {
+  success: boolean;
+  errors?: {
+    reorderedCards?: string[];
+    _form?: string[];
+  };
+  data?: Card[];
+  message?: string;
+};
+
+export async function reorderCardsInList(
+  listId: string,
+  reorderedCards: Card[]
+): Promise<ReorderCardsInListState> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        errors: { _form: ["Not authenticated"] },
+      };
+    }
+    const orderedCardIds = reorderedCards.map(card => card.id);
+    const validatedFields = sortCardInListSchema.parse({
+      listId,
+      orderedCardIds,
+    });
+
+    if (validatedFields.orderedCardIds.length === 0)
+      return { success: false, errors: { reorderedCards: ["No cards to reorder"] } };
+
+    // prepare updates array with prisma update rules/calls
+    const updates = validatedFields.orderedCardIds.map((cardId, index) => ({
+      where: { id: cardId },
+      data: { order: (index + 1) * 1000 },
+    }));
+
+    const update = await prisma.$transaction(
+      updates.map(update =>
+        prisma.card.update({
+          where: update.where,
+          data: update.data,
+        })
+      )
+    );
+
+    return {
+      success: true,
+      data: update,
+      message: "Card sorted successfully",
+    };
+  } catch (error) {
+    console.error("Error Sorting Card:", error);
+    if (error instanceof ZodError) {
+      const fieldErrors = error.flatten().fieldErrors;
+      return {
+        success: false,
+        errors: {
+          reorderedCards: fieldErrors.orderedCardIds,
         },
       };
     }

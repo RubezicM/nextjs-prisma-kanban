@@ -25,6 +25,11 @@ export const updateCardPrioritySchema = z.object({
   priority: cardPrioritySchema,
 });
 
+export const sortCardInListSchema = z.object({
+  listId: z.string().uuid("Invalid list ID"),
+  orderedCardIds: z.string().array(),
+});
+
 export const moveCardToColumnSchema = z.object({
   cardId: z.string().uuid("Invalid card ID"),
   listId: z.string().uuid("Invalid list ID"),
