@@ -21,10 +21,12 @@ const CardItem: React.FC<CardItemProps> = memo(
 
     return (
       <div className="bg-card hover:bg-muted rounded-sm border p-3 shadow-sm transition-shadow hover:shadow-md">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 select-none">
           <div className={`h-2 w-2 rounded-full ${color}`} />
           <h4 className="text-sm font-medium flex-1">{card.title}</h4>
-          <PriorityPicker priority={card.priority} onPriorityChange={handlePriorityChange} />
+          <div className="select-auto">
+            <PriorityPicker priority={card.priority} onPriorityChange={handlePriorityChange} />
+          </div>
         </div>
       </div>
     );
