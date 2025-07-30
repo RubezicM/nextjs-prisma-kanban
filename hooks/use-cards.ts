@@ -256,19 +256,17 @@ export function useReorderCardsInList() {
       if (!result.success) throw new Error(result.errors?._form?.[0] || "Failed");
       return result;
     },
-    onMutate: async () => {
+    onMutate: async ({ listId, reorderedCards }) => {
       if (!boardSlug || !userId) return {};
       const queryKey = ["board", boardSlug, userId];
       await queryClient.cancelQueries({ queryKey });
       const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
-      // queryClient.setQueryData(queryKey, (oldData:BoardWithData) => ({
-      //   ...oldData,
-      //   lists: oldData.lists.map(list =>
-      //     list.id === listId
-      //       ? { ...list, cards: reorderedCards }
-      //       : list
-      //   )
-      // }))
+      queryClient.setQueryData(queryKey, (oldData: BoardWithData) => ({
+        ...oldData,
+        lists: oldData.lists.map(list =>
+          list.id === listId ? { ...list, cards: reorderedCards } : list
+        ),
+      }));
       return { previousData, queryKey };
     },
     onError: async (err, variables, context) => {
@@ -277,28 +275,6 @@ export function useReorderCardsInList() {
         console.error("Mutation failed:", err);
         // Only invalidate on error to get fresh data
         queryClient.invalidateQueries({ queryKey: context.queryKey });
-      }
-    },
-    onSuccess: async (data, variables, context) => {
-      if (context?.queryKey) {
-        queryClient.setQueryData(context.queryKey, (oldData: BoardWithData | undefined) => {
-          if (!oldData) return oldData;
-
-          const updatedLists = oldData.lists.map(list => {
-            if (list.id === variables.listId) {
-              return {
-                ...list,
-                cards: variables.reorderedCards,
-              };
-            }
-            return list;
-          });
-
-          return {
-            ...oldData,
-            lists: updatedLists,
-          };
-        });
       }
     },
   });
