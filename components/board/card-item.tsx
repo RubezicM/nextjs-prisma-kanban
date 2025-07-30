@@ -1,6 +1,9 @@
+import { useBoardContext } from "@/contexts/BoardProvider";
 import type { Card } from "@/types/database";
 
 import React, { memo, useCallback } from "react";
+
+import Link from "next/link";
 
 import { PriorityPicker } from "@/components/card/priority-picker";
 
@@ -19,16 +22,20 @@ const CardItem: React.FC<CardItemProps> = memo(
       [card.id, onPriorityChange]
     );
 
+    const { boardData } = useBoardContext();
+
     return (
-      <div className="bg-card hover:bg-muted rounded-sm border p-3 shadow-sm transition-shadow hover:shadow-md">
-        <div className="flex items-center gap-1 select-none">
-          <div className={`h-2 w-2 rounded-full ${color}`} />
-          <h4 className="text-sm font-medium flex-1">{card.title}</h4>
-          <div className="select-auto">
-            <PriorityPicker priority={card.priority} onPriorityChange={handlePriorityChange} />
+      <Link href={`/board/${boardData?.slug}/${card.id}`} className="no-underline">
+        <div className="bg-card hover:bg-muted rounded-sm border p-3 shadow-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center gap-1 select-none">
+            <div className={`h-2 w-2 rounded-full ${color}`} />
+            <h4 className="text-sm font-medium flex-1">{card.title}</h4>
+            <div className="select-auto">
+              <PriorityPicker priority={card.priority} onPriorityChange={handlePriorityChange} />
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
     );
   },
   (prevProps, nextProps) => {

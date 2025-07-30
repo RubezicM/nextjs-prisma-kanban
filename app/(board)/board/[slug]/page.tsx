@@ -1,36 +1,28 @@
 import { auth } from "@/auth";
-import { BoardProvider } from "@/contexts/BoardProvider";
 
-import { notFound, redirect } from "next/navigation";
-
-import { getBoardBySlug } from "@/lib/actions/board-actions";
+import { getUserBoards } from "@/lib/actions/board-actions";
 
 import Board from "@/components/board/board";
+import BoardSwitcher from "@/components/shared/header/board-switcher";
+import Menu from "@/components/shared/header/menu";
 
-interface BoardPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
-
-const BoardPage = async ({ params }: BoardPageProps) => {
-  const { slug } = await params;
-
+const BoardPage = async () => {
   const session = await auth();
-
-  if (!session?.user?.id) {
-    redirect("/auth/sign-in");
-  }
-
-  const board = await getBoardBySlug(session.user.id, slug);
-  if (!board) {
-    notFound();
-  }
+  const userBoards = session?.user?.id ? await getUserBoards(session.user.id) : [];
 
   return (
-    <BoardProvider initialData={board} userId={session.user.id}>
-      <Board />
-    </BoardProvider>
+    <div className="flex h-screen flex-col">
+      <div className="bg-background border-b">
+        <div className="flex items-center justify-between px-6 py-2">
+          <BoardSwitcher boards={userBoards} />
+          <Menu />
+        </div>
+      </div>
+
+      <main className="flex-1 overflow-hidden">
+        <Board />
+      </main>
+    </div>
   );
 };
 
