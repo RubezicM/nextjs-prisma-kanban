@@ -51,7 +51,6 @@ const Board = () => {
   const { visibleLists, hiddenLists } = useMemo(() => {
     const visible = enrichedLists.filter(list => !list.collapsed);
     const hidden = enrichedLists.filter(list => list.collapsed);
-
     return {
       visibleLists: visible,
       hiddenLists: hidden,
@@ -90,7 +89,7 @@ const Board = () => {
                       }
                     >
                       <Droppable key={list.id} id={list.id}>
-                        <ListColumn list={list} />
+                        <ListColumn list={list} key={list.id} />
                       </Droppable>
                     </div>
                   ))

@@ -1,6 +1,6 @@
 "use client";
 
-import { useDndContext, useDroppable } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 
 import { cloneElement, ReactElement } from "react";
 
@@ -11,15 +11,15 @@ type DroppableProps = {
 };
 
 export function Droppable(props: DroppableProps) {
-  const { isOver, setNodeRef } = useDroppable({
+  const { setNodeRef, over, active } = useDroppable({
     id: props.id,
     data: props.data,
   });
 
-  const { active } = useDndContext();
   const draggedFromThisList = active?.data?.current?.listId === props.id;
-  const shouldShowOverlay = isOver && !draggedFromThisList;
+  const draggingToThisList = over?.data?.current?.listId === props.id || over?.id === props.id;
 
+  const shouldShowOverlay = !draggedFromThisList && draggingToThisList;
   return (
     <div ref={setNodeRef}>
       {cloneElement(props.children, { isOver: shouldShowOverlay } as { isOver: boolean })}

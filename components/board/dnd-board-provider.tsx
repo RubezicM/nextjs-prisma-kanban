@@ -1,6 +1,6 @@
 "use client";
 
-import { useMovingCardToColumn } from "@/hooks/use-cards";
+import { useMovingCardToColumn, useReorderCardsInList } from "@/hooks/use-cards";
 import { Card, BoardWithData, List } from "@/types/database";
 import {
   DndContext,
@@ -11,6 +11,7 @@ import {
   DragStartEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 
 import { useCallback, useState, useMemo } from "react";
 
@@ -33,6 +34,7 @@ const DndBoardProvider = ({
 }: DndBoardProviderProps) => {
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const moveCardMutation = useMovingCardToColumn();
+  const sortCardMutation = useReorderCardsInList();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -74,72 +76,123 @@ const DndBoardProvider = ({
       const { over, active } = event;
       if (!over) return;
 
+      const targetListId = over.data.current?.listId ?? String(over.id);
       const cardId = String(active.id);
-      const targetListId = String(over.id);
       const sourceListId = active.data?.current?.listId;
 
-      if (!sourceListId || sourceListId === targetListId) {
+      if (!sourceListId) {
         return;
       }
+      if (sourceListId === targetListId) {
+        onPendingChanges();
+        const sourceListIndex = localBoardData.lists.findIndex((l: List) => l.id === sourceListId);
+        if (sourceListIndex === -1) return;
+        const currentList = localBoardData.lists[sourceListIndex];
+        const oldCardIndex = currentList.cards.findIndex((c: Card) => c.id === cardId);
+        const newCardIndex = currentList.cards.findIndex((c: Card) => c.id === String(over.id));
+        const reorderedCards = arrayMove(currentList.cards, oldCardIndex, newCardIndex);
 
-      // Mark that we have pending changes
-      onPendingChanges();
+        setLocalBoardData(prevData => {
+          if (!prevData.lists) return prevData;
+          if (oldCardIndex === -1 || newCardIndex === -1 || oldCardIndex === newCardIndex)
+            return prevData;
 
-      // We need this to prevent flicker animation :/
-      setLocalBoardData(prevData => {
-        if (!prevData?.lists) return prevData;
+          const newLists = [...prevData.lists];
+          newLists[sourceListIndex] = {
+            ...currentList,
+            cards: reorderedCards,
+          };
 
-        const sourceListIndex = prevData.lists.findIndex((l: List) => l.id === sourceListId);
-        const targetListIndex = prevData.lists.findIndex((l: List) => l.id === targetListId);
+          return {
+            ...prevData,
+            lists: newLists,
+          };
+        });
 
-        if (sourceListIndex === -1 || targetListIndex === -1) return prevData;
+        setActiveCard(null);
+        sortCardMutation.mutate(
+          { listId: sourceListId, reorderedCards: reorderedCards },
+          {
+            onSuccess: () => {
+              onChangesComplete();
+            },
+            onError: (err, variables, context) => {
+              console.error("[DndProvider] Reordering cards failed:", err);
+              // Rollback optimistic update if needed
+              setLocalBoardData(prevData => {
+                if (!context?.previousData) return prevData;
+                return context.previousData;
+              });
+              onChangesComplete();
+            },
+          }
+        );
+        return;
+      } else {
+        onPendingChanges();
 
-        // only clone the lists array to avoid mutating state directly
-        const newLists = [...prevData.lists];
+        // We need this to prevent flicker animation :/
+        setLocalBoardData(prevData => {
+          if (!prevData?.lists) return prevData;
 
-        const sourceList = newLists[sourceListIndex];
-        const cardIndex = sourceList.cards.findIndex((c: Card) => c.id === cardId);
-        const cardToMove = sourceList.cards[cardIndex];
+          const sourceListIndex = prevData.lists.findIndex((l: List) => l.id === sourceListId);
+          const targetListIndex = prevData.lists.findIndex((l: List) => l.id === targetListId);
 
-        newLists[sourceListIndex] = {
-          ...sourceList,
-          cards: sourceList.cards.filter((c: Card) => c.id !== cardId),
-        };
+          if (sourceListIndex === -1 || targetListIndex === -1) return prevData;
 
-        const targetList = newLists[targetListIndex];
-        newLists[targetListIndex] = {
-          ...targetList,
-          cards: [...targetList.cards, cardToMove],
-        };
+          // only clone the lists array to avoid mutating state directly
+          const newLists = [...prevData.lists];
 
-        return {
-          ...prevData,
-          lists: newLists,
-        };
-      });
+          const sourceList = newLists[sourceListIndex];
+          const cardIndex = sourceList.cards.findIndex((c: Card) => c.id === cardId);
+          const cardToMove = sourceList.cards[cardIndex];
 
-      // reset the dragged card
-      setActiveCard(null);
+          newLists[sourceListIndex] = {
+            ...sourceList,
+            cards: sourceList.cards.filter((c: Card) => c.id !== cardId),
+          };
 
-      moveCardMutation.mutate(
-        { cardId, targetListId, sourceListId },
-        {
-          onSuccess: () => {
-            onChangesComplete();
-          },
-          onError: (err, variables, context) => {
-            console.error("[DndProvider] Mutation failed:", err);
-            // Rollback optimistic update if needed
-            setLocalBoardData(prevData => {
-              if (!context?.previousData) return prevData;
-              return context.previousData;
-            });
-            onChangesComplete();
-          },
-        }
-      );
+          const targetList = newLists[targetListIndex];
+          newLists[targetListIndex] = {
+            ...targetList,
+            cards: [...targetList.cards, cardToMove],
+          };
+
+          return {
+            ...prevData,
+            lists: newLists,
+          };
+        });
+
+        setActiveCard(null);
+
+        moveCardMutation.mutate(
+          { cardId, targetListId, sourceListId },
+          {
+            onSuccess: () => {
+              onChangesComplete();
+            },
+            onError: (err, variables, context) => {
+              console.error("[DndProvider] Moving card failed:", err);
+              // Rollback optimistic update if needed
+              setLocalBoardData(prevData => {
+                if (!context?.previousData) return prevData;
+                return context.previousData;
+              });
+              onChangesComplete();
+            },
+          }
+        );
+      }
     },
-    [setLocalBoardData, moveCardMutation, onChangesComplete, onPendingChanges]
+    [
+      setLocalBoardData,
+      moveCardMutation,
+      onChangesComplete,
+      onPendingChanges,
+      sortCardMutation,
+      localBoardData.lists,
+    ]
   );
 
   // card-to-color mapping for DragOverlay

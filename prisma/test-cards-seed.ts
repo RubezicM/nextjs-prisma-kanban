@@ -20,7 +20,7 @@ async function seedTestCards() {
   let board = await prisma.board.findFirst({
     where: {
       userId: user.id,
-      title: "najnoviiji board",
+      title: "mojboard",
     },
     include: { lists: true },
   });

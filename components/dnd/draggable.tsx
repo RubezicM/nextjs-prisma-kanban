@@ -27,7 +27,7 @@ export function Draggable(props: DraggableProps) {
       style={style}
       {...listeners}
       {...attributes}
-      className={isDragging ? "opacity-0 cursor-grabbing" : "cursor-grab"} // Hide original when dragging
+      className={isDragging ? "opacity-0 cursor-grabbing" : "cursor-grab"}
     >
       {props.children}
     </div>
