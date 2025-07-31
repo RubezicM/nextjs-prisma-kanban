@@ -7,8 +7,8 @@ import { Ellipsis, Plus } from "lucide-react";
 
 import { useState, memo, useCallback, JSX } from "react";
 
-import AddCardTrigger from "@/components/board/add-card-trigger";
-import CardItem from "@/components/board/card-item";
+import AddCardTrigger from "@/components/card/add-card-trigger";
+import CardItem from "@/components/card/card-item";
 import { SortableCardItem } from "@/components/dnd/sortable-card-item";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 

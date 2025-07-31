@@ -17,9 +17,17 @@ interface AddCardFormProps {
 
 const AddCardForm = ({ listId, onSuccess, boardSlug }: AddCardFormProps) => {
   const [content, setContent] = useState("");
+  const [errors, setErrors] = useState<{
+    title?: string[];
+    content?: string[];
+    listId?: string[];
+    boardSlug?: string[];
+    _form?: string[];
+  }>({});
   const createCardMutation = useCreateCard(listId);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrors({});
 
     const formData = new FormData(e.currentTarget);
     formData.set("content", content);
@@ -28,11 +36,20 @@ const AddCardForm = ({ listId, onSuccess, boardSlug }: AddCardFormProps) => {
       formData.set("boardSlug", boardSlug);
     }
     try {
-      createCardMutation.mutate(formData);
+      const result = await createCardMutation.mutateAsync(formData);
+
+      if (!result.success) {
+        setErrors(result.errors || { _form: ["Failed to create card. Please try again."] });
+        return;
+      }
+
+      // Only on success:
       onSuccess?.();
       setContent("");
+      setErrors({});
     } catch (error) {
-      console.error("Failed to create card:", error);
+      console.error("Unexpected error during card creation:", error);
+      setErrors({ _form: ["Failed to create card. Please try again."] });
     }
   };
   return (
@@ -53,16 +70,20 @@ const AddCardForm = ({ listId, onSuccess, boardSlug }: AddCardFormProps) => {
             autoFocus
             id="title"
             required
-          ></Input>
+          />
+          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title[0]}</p>}
         </div>
         <div className="border rounded-md bg-background">
           <TextEditor onContentChange={setContent} />
         </div>
       </div>
-      <div className="border-t py-2 my-4 flex items-end justify-end gap-2">
-        <Button type="submit" size="sm" disabled={createCardMutation.isPending}>
-          {createCardMutation.isPending ? "Creating..." : "Add Card"}
-        </Button>
+      <div className="border-t py-2 my-4 flex flex-col gap-2">
+        {errors._form && <p className="text-red-500 text-sm">{errors._form[0]}</p>}
+        <div className="flex items-end justify-end gap-2">
+          <Button type="submit" size="sm" disabled={createCardMutation.isPending}>
+            {createCardMutation.isPending ? "Creating..." : "Add Card"}
+          </Button>
+        </div>
       </div>
     </form>
   );

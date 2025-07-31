@@ -30,7 +30,7 @@ const CardItem: React.FC<CardItemProps> = memo(
           <div className="flex items-center gap-1 select-none">
             <div className={`h-2 w-2 rounded-full ${color}`} />
             <h4 className="text-sm font-medium flex-1">{card.title}</h4>
-            <div className="select-auto">
+            <div className="select-auto" data-no-drag={true} onClick={e => e.stopPropagation()}>
               <PriorityPicker priority={card.priority} onPriorityChange={handlePriorityChange} />
             </div>
           </div>

@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 
 import { useState } from "react";
 
-import AddCardForm from "@/components/board/add-card-form";
+import AddCardForm from "@/components/card/add-card-form";
 import {
   Dialog,
   DialogContent,
