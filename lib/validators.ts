@@ -14,7 +14,10 @@ export const createBoardSchema = z.object({
 });
 
 export const createCardSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters")
+    .max(100, "Title must be less than 100 characters"),
   content: z.string().optional(),
   listId: z.string().uuid("Invalid list ID"),
   boardSlug: z.string(),

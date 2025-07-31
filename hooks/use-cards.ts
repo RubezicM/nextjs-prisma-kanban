@@ -20,58 +20,65 @@ export function useCreateCard(listId: string) {
   return useMutation({
     mutationFn: async (formData: FormData) => {
       const result = await createCard({ success: false }, formData);
-      if (!result.success) throw new Error(result.errors?._form?.[0] || "Failed");
+      // Return result directly don't throw for validation errors
       return result;
     },
 
     onMutate: async (formData: FormData) => {
-      if (!boardSlug || !userId) return {};
+      try {
+        if (!boardSlug || !userId) return {};
 
-      const title = formData.get("title") as string;
-      const content = formData.get("content") as string;
+        const title = formData.get("title") as string;
+        const content = formData.get("content") as string;
 
-      // ⭐️ Use existing query key format
-      const queryKey = ["board", boardSlug, userId];
+        const queryKey = ["board", boardSlug, userId];
 
-      await queryClient.cancelQueries({ queryKey });
-      const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
+        await queryClient.cancelQueries({ queryKey });
+        const previousData = queryClient.getQueryData<BoardWithData>(queryKey);
 
-      const tempId = `temp-${Date.now()}`;
-      // Optimistic update
-      queryClient.setQueryData<BoardWithData>(queryKey, old => {
-        if (!old) return old;
+        const tempId = `temp-${Date.now()}`;
 
-        const targetList = old.lists.find((list: List) => list.id === listId);
-        if (!targetList) return old;
+        queryClient.setQueryData<BoardWithData>(queryKey, old => {
+          if (!old) return old;
 
-        const existingCards = targetList.cards || [];
-        const maxOrder =
-          existingCards.length > 0 ? Math.max(...existingCards.map((card: Card) => card.order)) : 0;
+          const targetList = old.lists.find((list: List) => list.id === listId);
+          if (!targetList) return old;
 
-        const newOrder = maxOrder + 1000;
-        const tempCard: Card = {
-          id: tempId,
-          title,
-          content,
-          listId,
-          order: newOrder,
-          priority: "NONE",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+          const existingCards = targetList.cards || [];
+          const maxOrder =
+            existingCards.length > 0
+              ? Math.max(...existingCards.map((card: Card) => card.order))
+              : 0;
 
-        return {
-          ...old,
-          lists: old.lists.map((list: List) =>
-            list.id === listId ? { ...list, cards: [...list.cards, tempCard] } : list
-          ),
-        };
-      });
+          const newOrder = maxOrder + 1000;
+          const tempCard: Card = {
+            id: tempId,
+            title,
+            content,
+            listId,
+            order: newOrder,
+            priority: "NONE",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
 
-      return { previousData, queryKey, tempId };
+          return {
+            ...old,
+            lists: old.lists.map((list: List) =>
+              list.id === listId ? { ...list, cards: [...list.cards, tempCard] } : list
+            ),
+          };
+        });
+
+        return { previousData, queryKey, tempId };
+      } catch (error) {
+        console.error("Error during optimistic update:", error);
+        return {};
+      }
     },
 
     onError: (err, variables, context) => {
+      console.log("Mutation error caught in onError:", err);
       if (context?.previousData && context?.queryKey) {
         queryClient.setQueryData(context.queryKey, context.previousData);
         // Only invalidate on error to get fresh data
@@ -80,9 +87,12 @@ export function useCreateCard(listId: string) {
     },
 
     onSuccess: (data, variables, context) => {
-      // Replace temp card!!
-      if (boardSlug && userId && context?.queryKey && data.success && data.data) {
-        const queryKey = context.queryKey;
+      if (!boardSlug || !userId || !context?.queryKey) return;
+
+      const queryKey = context.queryKey;
+
+      if (data.success && data.data) {
+        // Replace temp card with real card
         queryClient.setQueryData<BoardWithData>(queryKey, old => {
           if (!old) return old;
 
@@ -100,6 +110,12 @@ export function useCreateCard(listId: string) {
             ),
           };
         });
+      } else {
+        // Validation failed - rollback optimistic update
+        console.log("Validation failed, rolling back optimistic update");
+        if (context.previousData) {
+          queryClient.setQueryData(queryKey, context.previousData);
+        }
       }
     },
   });

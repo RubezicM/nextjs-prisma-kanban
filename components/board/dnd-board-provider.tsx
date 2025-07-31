@@ -15,7 +15,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 
 import { useCallback, useState, useMemo } from "react";
 
-import CardItem from "@/components/board/card-item";
+import CardItem from "@/components/card/card-item";
 
 interface DndBoardProviderProps {
   children: React.ReactNode;

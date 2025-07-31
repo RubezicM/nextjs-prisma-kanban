@@ -34,16 +34,21 @@ export const PriorityPicker = memo<PriorityPickerProps>(
             className="h-8 w-8 p-0 hover:bg-muted border flex items-center"
             disabled={disabled}
             aria-label="Change priority"
+            onClick={e => {
+              e.stopPropagation();
+            }}
           >
             <PriorityIcon priority={priority} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-46">
+        <DropdownMenuContent align="end" className="w-46 z-50" data-no-drag>
           {PRIORITY_OPTIONS.map(
             (priorityOption): React.ReactElement => (
               <DropdownMenuItem
                 key={priorityOption}
-                onClick={() => onPriorityChange(priorityOption)}
+                onSelect={() => {
+                  onPriorityChange(priorityOption);
+                }}
                 className="flex items-center flex-row justify-between gap-2 cursor-pointer hover:bg-muted"
               >
                 <div className="flex gap-2 items-center">
