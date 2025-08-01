@@ -193,10 +193,19 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
   );
 };
 
-const TextEditor = ({ onContentChange }: { onContentChange?: (content: string) => void }) => {
+const TextEditor = ({
+  onContentChange,
+  initialContent,
+  variant = "modal",
+}: {
+  onContentChange?: (content: string) => void;
+  initialContent?: string;
+  variant?: "modal" | "fullHeight";
+}) => {
   const editor = useEditor({
     immediatelyRender: false,
     extensions,
+    content: initialContent || "",
     onUpdate: ({ editor }) => {
       const htmlContent = editor.getHTML();
       onContentChange?.(htmlContent);
@@ -211,12 +220,39 @@ const TextEditor = ({ onContentChange }: { onContentChange?: (content: string) =
     <div>
       <MenuBar editor={editor} />
       <div className="relative">
-        <EditorContent editor={editor} />
+        <EditorContent editor={editor} className="prose prose-sm max-w-none" style={{}} />
         {editor.isEmpty && (
           <div className="absolute top-0 left-0 text-muted-foreground pointer-events-none p-3">
-            Write your card content here...
+            Add description...
           </div>
         )}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            .ProseMirror {
+              outline: none !important;
+              padding: 12px !important;
+              border: 0 !important;
+              resize: none !important;
+              white-space: pre-wrap !important;
+              ${
+                variant === "fullHeight"
+                  ? `
+                  overflow: visible !important;
+                  max-height: none !important;
+                  height: auto !important;
+                  min-height: 60px !important;
+                `
+                  : `
+                  overflow-y: auto !important;
+                  max-height: 200px !important;
+                  min-height: 100px !important;
+                `
+              }
+            }
+          `,
+          }}
+        />
       </div>
     </div>
   );

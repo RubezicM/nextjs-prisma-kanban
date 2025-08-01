@@ -1,9 +1,15 @@
 "use client";
 
 import { useBoardContext } from "@/contexts/BoardProvider";
+import { useCardAutoSave } from "@/hooks/use-card-auto-save";
+import { useUpdateCardPriority } from "@/hooks/use-cards";
 import { Card } from "@/types/database";
 
 import { JSX } from "react";
+
+import CardBreadcrumbs from "@/components/card/card-breadcrumbs";
+import { PriorityPicker } from "@/components/card/priority-picker";
+import TextEditor from "@/components/shared/editor/text-editor";
 
 interface CardDetailProps {
   cardId: string;
@@ -11,6 +17,8 @@ interface CardDetailProps {
 
 const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: CardDetailProps) => {
   const { boardData, isLoading } = useBoardContext();
+  const { saveTitle, saveContent } = useCardAutoSave(cardId);
+  const updateCardPriorityMutation = useUpdateCardPriority();
 
   if (isLoading) {
     return (
@@ -31,10 +39,7 @@ const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: Ca
       </div>
     );
   }
-  console.log("Board Data:", boardData);
-  console.log("cardId", cardId);
 
-  // Find the card in the board data
   let foundCard: Card | null = null;
   for (const list of boardData.lists) {
     const card = list.cards.find(c => c.id === cardId);
@@ -44,7 +49,6 @@ const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: Ca
     }
   }
 
-  // Card existence is now validated in the server page, so this shouldn't happen
   if (!foundCard) {
     return (
       <div className="p-6">
@@ -53,22 +57,65 @@ const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: Ca
     );
   }
 
+  const handleTitleChange = (value: string) => {
+    saveTitle(value);
+  };
+
+  const handleContentChange = (content: string) => {
+    saveContent(content);
+  };
+
+  const handlePriorityChange = (priority: Card["priority"]) => {
+    updateCardPriorityMutation.mutate({ cardId, priority });
+  };
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">{foundCard.title}</h1>
-      <div className="mb-4">
-        <p className="text-sm text-gray-500 mb-2">Card ID: {cardId}</p>
-        <p className="text-sm text-gray-500 mb-2">Priority: {foundCard.priority}</p>
-      </div>
-      {foundCard.content && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Description</h3>
-          <p className="text-gray-700 whitespace-pre-wrap">{foundCard.content}</p>
+    <div className="bg-background p-3 h-screen overflow-hidden">
+      <div className="border rounded-sm bg-popover shadow-sm w-full h-full grid grid-cols-1 lg:grid-cols-[4fr_1fr]">
+        <div className="content-area flex flex-col min-h-0">
+          <div className="header border-b p-4 flex-shrink-0">
+            <CardBreadcrumbs
+              boardTitle={boardData.title}
+              boardSlug={boardData.slug}
+              cardTitle={foundCard.title}
+            />
+          </div>
+          <div className="content-body flex-1 overflow-auto min-h-0">
+            <div className="centered-container max-w-[860px] mx-auto p-6">
+              <input
+                type="text"
+                defaultValue={foundCard.title}
+                onChange={e => handleTitleChange(e.target.value)}
+                className="text-2xl font-bold mb-4 w-full bg-transparent border-none outline-none focus:ring-0 focus:outline-none rounded px-2 py-1 -mx-2"
+                placeholder="Card title..."
+              />
+
+              <div className="mb-4">
+                <div>
+                  <TextEditor
+                    initialContent={foundCard.content || ""}
+                    onContentChange={handleContentChange}
+                    variant="fullHeight"
+                  />
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-500 flex flex-row gap-4">
+                <p>Created: {new Date(foundCard.createdAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
-      <div className="text-sm text-gray-500">
-        <p>Created: {new Date(foundCard.createdAt).toLocaleDateString()}</p>
-        <p>Updated: {new Date(foundCard.updatedAt).toLocaleDateString()}</p>
+        <div className="commands-area border-l lg:border-l border-t lg:border-t-0 p-4 lg:block hidden">
+          <h3 className="font-semibold mb-4 text-gray-500">Commands</h3>
+          <div className="mb-4">
+            <PriorityPicker
+              priority={foundCard.priority}
+              onPriorityChange={handlePriorityChange}
+              variant="detailed"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
