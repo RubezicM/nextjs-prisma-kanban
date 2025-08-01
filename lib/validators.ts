@@ -39,6 +39,16 @@ export const moveCardToColumnSchema = z.object({
   order: z.number().int("Order must be an integer").optional(),
 });
 
+export const updateCardContentSchema = z.object({
+  cardId: z.string().uuid("Invalid card ID"),
+  title: z
+    .string()
+    .min(1, "Title cannot be empty")
+    .max(100, "Title must be less than 100 characters")
+    .optional(),
+  content: z.string().optional(),
+});
+
 export const signInFormSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),

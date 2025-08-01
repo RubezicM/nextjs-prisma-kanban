@@ -12,6 +12,7 @@ import {
   moveCardToColumnSchema,
   sortCardInListSchema,
   updateCardPrioritySchema,
+  updateCardContentSchema,
 } from "@/lib/validators";
 
 export type CreateCardState = {
@@ -269,6 +270,72 @@ export async function reorderCardsInList(
         success: false,
         errors: {
           reorderedCards: fieldErrors.orderedCardIds,
+        },
+      };
+    }
+
+    return { success: false, errors: { _form: ["Something went wrong"] } };
+  }
+}
+
+export type UpdateCardContentState = {
+  success: boolean;
+  errors?: {
+    cardId?: string[];
+    title?: string[];
+    content?: string[];
+    _form?: string[];
+  };
+  data?: Card;
+  message?: string;
+};
+
+export async function updateCardContent(
+  cardId: string,
+  updates: { title?: string; content?: string }
+): Promise<UpdateCardContentState> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        errors: { _form: ["Not authenticated"] },
+      };
+    }
+
+    const validatedFields = updateCardContentSchema.parse({
+      cardId,
+      ...updates,
+    });
+
+    const dataToUpdate: { title?: string; content?: string } = {};
+    if (validatedFields.title !== undefined) {
+      dataToUpdate.title = validatedFields.title;
+    }
+    if (validatedFields.content !== undefined) {
+      dataToUpdate.content = validatedFields.content;
+    }
+
+    const updatedCard = await prisma.card.update({
+      where: { id: validatedFields.cardId },
+      data: dataToUpdate,
+    });
+
+    return {
+      success: true,
+      data: updatedCard,
+      message: "Card updated successfully",
+    };
+  } catch (error) {
+    console.error("Error updating card content:", error);
+    if (error instanceof ZodError) {
+      const fieldErrors = error.flatten().fieldErrors;
+      return {
+        success: false,
+        errors: {
+          cardId: fieldErrors.cardId,
+          title: fieldErrors.title,
+          content: fieldErrors.content,
         },
       };
     }
