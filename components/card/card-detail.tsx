@@ -5,7 +5,7 @@ import { useCardAutoSave } from "@/hooks/use-card-auto-save";
 import { useUpdateCardPriority } from "@/hooks/use-cards";
 import { Card } from "@/types/database";
 
-import { JSX } from "react";
+import { JSX, useState, useEffect } from "react";
 
 import CardBreadcrumbs from "@/components/card/card-breadcrumbs";
 import { PriorityPicker } from "@/components/card/priority-picker";
@@ -15,10 +15,21 @@ interface CardDetailProps {
   cardId: string;
 }
 
-const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: CardDetailProps) => {
+const CardDetail = ({ cardId }: CardDetailProps): JSX.Element => {
   const { boardData, isLoading } = useBoardContext();
-  const { saveTitle, saveContent } = useCardAutoSave(cardId);
+  const { saveTitle, saveContent, isSuccess, lastVariables } = useCardAutoSave(cardId);
   const updateCardPriorityMutation = useUpdateCardPriority();
+  const [showContentSaved, setShowContentSaved] = useState(false);
+
+  useEffect(() => {
+    if (isSuccess && lastVariables?.content !== undefined) {
+      setShowContentSaved(true);
+      const timer = setTimeout(() => {
+        setShowContentSaved(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, lastVariables]);
 
   if (isLoading) {
     return (
@@ -100,8 +111,11 @@ const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: Ca
                 </div>
               </div>
 
-              <div className="text-sm text-gray-500 flex flex-row gap-4">
+              <div className="text-xs text-gray-500 flex flex-row justify-between items-center">
                 <p>Created: {new Date(foundCard.createdAt).toLocaleDateString()}</p>
+                {showContentSaved && (
+                  <p className="text-green-600 transition-opacity duration-300">Content saved ✓</p>
+                )}
               </div>
             </div>
           </div>

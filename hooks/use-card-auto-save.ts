@@ -78,5 +78,7 @@ export function useCardAutoSave(cardId: string) {
     saveContent: debouncedSaveContent,
     isSaving: mutation.isPending,
     isError: mutation.isError,
+    isSuccess: mutation.isSuccess,
+    lastVariables: mutation.variables,
   };
 }
