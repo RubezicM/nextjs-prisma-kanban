@@ -9,6 +9,14 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     css: true,
+    reporters: [
+      [
+        "default",
+        {
+          summary: true,
+        },
+      ],
+    ],
   },
   resolve: {
     alias: {
