@@ -11,15 +11,11 @@ import CardBreadcrumbs from "@/components/card/card-breadcrumbs";
 import { PriorityPicker } from "@/components/card/priority-picker";
 import TextEditor from "@/components/shared/editor/text-editor";
 
-import CardBreadcrumbs from "@/components/card/card-breadcrumbs";
-import { PriorityPicker } from "@/components/card/priority-picker";
-import TextEditor from "@/components/shared/editor/text-editor";
-
 interface CardDetailProps {
   cardId: string;
 }
 
-const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: CardDetailProps) => {
+const CardDetail = ({ cardId }: CardDetailProps): JSX.Element => {
   const { boardData, isLoading } = useBoardContext();
   const { saveTitle, saveContent, isSuccess, lastVariables } = useCardAutoSave(cardId);
   const updateCardPriorityMutation = useUpdateCardPriority();
@@ -34,8 +30,6 @@ const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: Ca
       return () => clearTimeout(timer);
     }
   }, [isSuccess, lastVariables]);
-  const { saveTitle, saveContent } = useCardAutoSave(cardId);
-  const updateCardPriorityMutation = useUpdateCardPriority();
 
   if (isLoading) {
     return (
@@ -122,8 +116,6 @@ const CardDetail: ({ cardId }: CardDetailProps) => JSX.Element = ({ cardId }: Ca
                 {showContentSaved && (
                   <p className="text-green-600 transition-opacity duration-300">Content saved ✓</p>
                 )}
-              <div className="text-sm text-gray-500 flex flex-row gap-4">
-                <p>Created: {new Date(foundCard.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
