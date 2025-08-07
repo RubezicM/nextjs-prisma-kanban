@@ -1,7 +1,8 @@
 "use client";
 
+import { useBoardLoading } from "@/contexts/BoardLoadingContext";
 import type { Board } from "@/types/database";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,11 +24,22 @@ interface BoardSwitcherProps {
 export default function BoardSwitcher({ boards }: BoardSwitcherProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { state: loadingState, startLoading } = useBoardLoading();
 
   // Extract current board slug from URL
   const currentSlug = pathname.split("/")[2];
   const currentBoard = boards.find(board => board.slug === currentSlug);
   const currentBoardIndex = boards.findIndex(board => board.slug === currentSlug);
+
+  const handleBoardClick = (board: Board) => {
+    // Don't allow clicking if already loading or if it's the current board
+    if (loadingState.isLoading || board.slug === currentSlug) {
+      return;
+    }
+
+    startLoading(board.title, board.slug);
+    router.push(`/board/${board.slug}`);
+  };
 
   if (boards.length === 0) {
     return (
@@ -62,18 +74,35 @@ export default function BoardSwitcher({ boards }: BoardSwitcherProps) {
         <>
           {boards.map((board, index) => {
             const avatar = getBoardAvatar(board.title, index);
+            const isCurrentBoard = currentSlug === board.slug;
+            const isLoadingThisBoard =
+              loadingState.isLoading && loadingState.loadingBoardSlug === board.slug;
+            const isDisabled = loadingState.isLoading || isCurrentBoard;
+
             return (
               <DropdownMenuItem
                 key={board.id}
-                onClick={() => router.push(`/board/${board.slug}`)}
-                className={`flex items-center gap-2 ${currentSlug === board.slug ? "bg-muted" : ""}`}
+                onClick={() => handleBoardClick(board)}
+                className={`flex items-center gap-2 ${
+                  isCurrentBoard ? "bg-muted" : ""
+                } ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                disabled={isDisabled}
               >
                 <div
                   className={`w-6 h-6 rounded-sm flex items-center justify-center text-white text-xs font-bold ${avatar.bgColor}`}
                 >
-                  {avatar.initials}
+                  {isLoadingThisBoard ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    avatar.initials
+                  )}
                 </div>
-                {board.title}
+                <span className={isLoadingThisBoard ? "opacity-75" : ""}>{board.title}</span>
+                {isLoadingThisBoard && (
+                  <div className="ml-auto">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  </div>
+                )}
               </DropdownMenuItem>
             );
           })}
