@@ -1,8 +1,11 @@
+import { BoardLoadingProvider } from "@/contexts/BoardLoadingContext";
 import { AuthProvider } from "@/providers/auth-provider";
 import { TanStackProvider } from "@/providers/tanstack-provider";
 import ThemeProvider from "@/providers/theme-provider";
 
 import { Inter } from "next/font/google";
+
+import { FullscreenLoader } from "@/components/ui/fullscreen-loader";
 
 import "./globals.css";
 
@@ -19,7 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             enableSystem
             disableTransitionOnChange
           >
-            <AuthProvider>{children}</AuthProvider>
+            <BoardLoadingProvider>
+              <AuthProvider>{children}</AuthProvider>
+              <FullscreenLoader />
+            </BoardLoadingProvider>
           </ThemeProvider>
         </TanStackProvider>
       </body>
